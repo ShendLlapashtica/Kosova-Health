@@ -17,6 +17,7 @@ interface HeaderProps {
 }
 
 const NAV_ITEMS: { tab: TabType; icon: string; al: string; en: string }[] = [
+  { tab: 'shop', icon: 'grocery', al: 'Blerje me alergji', en: 'Allergy-safe shopping' },
   { tab: 'input', icon: 'sync_alt', al: 'Regjistrimi i Analizave', en: 'Lab & Biomarkers Input' },
   { tab: 'diagrams', icon: 'donut_large', al: 'Diagramet & Deficitet', en: 'Health Diagrams' },
   { tab: 'pharmacies', icon: 'local_pharmacy', al: 'Farmacitë e Prishtinës', en: 'Prishtina Pharmacy Finder' },
@@ -50,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Brand Zone */}
         <div className="flex items-center gap-3 shrink-0">
           <button
-            onClick={() => setActiveTab('input')}
+            onClick={() => setActiveTab('shop')}
             className="flex items-center gap-2 text-left group transition-transform active:scale-95"
             aria-label="KosovaHealth"
           >

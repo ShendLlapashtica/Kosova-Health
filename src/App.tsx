@@ -6,12 +6,13 @@ import { Footer } from './components/Footer';
 import { LabBiomarkersInput } from './components/LabBiomarkersInput';
 import { DeficiencyDiagrams } from './components/DeficiencyDiagrams';
 import { PharmacyFinder } from './components/PharmacyFinder';
+import { SafeShopping } from './components/SafeShopping';
 import { AuthModal } from './components/AuthModal';
 import { ConsultationModal } from './components/ConsultationModal';
 import { PrescriptionDrawer } from './components/PrescriptionDrawer';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('input');
+  const [activeTab, setActiveTab] = useState<TabType>('shop');
   const [language, setLanguage] = useState<Language>('al');
   const [patient, setPatient] = useState<PatientProfile>(INITIAL_PATIENT);
   const [biomarkers, setBiomarkers] = useState<BiomarkerData>(INITIAL_BIOMARKERS);
@@ -60,6 +61,8 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="w-full pt-20 flex-1">
+        {activeTab === 'shop' && <SafeShopping language={language} onNotification={showNotification} />}
+
         {activeTab === 'input' && (
           <LabBiomarkersInput
             biomarkers={biomarkers}
