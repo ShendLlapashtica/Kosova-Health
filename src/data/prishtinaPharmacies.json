@@ -1,0 +1,1376 @@
+{
+ "fetchedAt": "2026-10-03",
+ "source": "OpenStreetMap",
+ "pharmacies": [
+  {
+   "id": "node/1559933833",
+   "name": null,
+   "lat": 42.615024,
+   "lng": 21.179074,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4183719790",
+   "name": null,
+   "lat": 42.60183,
+   "lng": 21.19155,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4183719989",
+   "name": null,
+   "lat": 42.602108,
+   "lng": 21.191545,
+   "street": null,
+   "openingHours": "Mo-Su 08:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4429426702",
+   "name": null,
+   "lat": 42.667486,
+   "lng": 21.164339,
+   "street": null,
+   "openingHours": "Mo-Su 08:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4581291006",
+   "name": null,
+   "lat": 42.666963,
+   "lng": 21.175035,
+   "street": "Nazim Gafurri",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6291256270",
+   "name": null,
+   "lat": 42.67793,
+   "lng": 21.161721,
+   "street": "Vëllezërit Fazliu",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6799467385",
+   "name": null,
+   "lat": 42.658001,
+   "lng": 21.160133,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7041811360",
+   "name": null,
+   "lat": 42.631622,
+   "lng": 21.092785,
+   "street": "Bedri Pejani 8",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/11205146337",
+   "name": null,
+   "lat": 42.647998,
+   "lng": 21.162393,
+   "street": "B2",
+   "openingHours": "Mo-Su 08:30-00:00",
+   "phone": "+38349985100",
+   "website": null
+  },
+  {
+   "id": "way/348282170",
+   "name": null,
+   "lat": 42.655696,
+   "lng": 21.173855,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "way/650692678",
+   "name": null,
+   "lat": 42.675066,
+   "lng": 21.169619,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "way/650692679",
+   "name": null,
+   "lat": 42.674989,
+   "lng": 21.169742,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/9858652717",
+   "name": "Achillea pharmacy",
+   "lat": 42.655811,
+   "lng": 21.155232,
+   "street": "Robert Doll 37",
+   "openingHours": "Mo-Sa 08:00-22:00; Su 00:00-24:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/9872128319",
+   "name": "ADI's Pharmacy",
+   "lat": 42.642056,
+   "lng": 21.099979,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441485",
+   "name": "Ak Pharm",
+   "lat": 42.61961,
+   "lng": 21.191187,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/13359663792",
+   "name": "Alsi Pharm",
+   "lat": 42.653584,
+   "lng": 21.15124,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441588",
+   "name": "AN pharm",
+   "lat": 42.660832,
+   "lng": 21.166488,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/11098945293",
+   "name": "Apollo Pharmacy",
+   "lat": 42.663677,
+   "lng": 21.165679,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6312549889",
+   "name": "AR-PHARMA",
+   "lat": 42.648325,
+   "lng": 21.157522,
+   "street": "Dëshmorët e Kombit",
+   "openingHours": "Mo-Sa 07:30-21:00",
+   "phone": "+38349111065",
+   "website": null
+  },
+  {
+   "id": "node/4743794021",
+   "name": "Aris",
+   "lat": 42.659263,
+   "lng": 21.181031,
+   "street": "Isa Kastrati",
+   "openingHours": "Mo-Su 08:00-21:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6281406765",
+   "name": "Aroma Pharm",
+   "lat": 42.655059,
+   "lng": 21.154733,
+   "street": "Bil Klinton",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/5610303423",
+   "name": "Avena",
+   "lat": 42.654716,
+   "lng": 21.153751,
+   "street": "Bill Klinton",
+   "openingHours": "Mo-Sa 08:00-11:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4370808048",
+   "name": "Barnatore",
+   "lat": 42.664027,
+   "lng": 21.166342,
+   "street": "Bajram Kelmendi",
+   "openingHours": "Mo-Su 07:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7366572261",
+   "name": "Barnatore",
+   "lat": 42.63772,
+   "lng": 21.093003,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/5634975034",
+   "name": "Barnatore 'Uno Pharm'",
+   "lat": 42.648452,
+   "lng": 21.170051,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7366548933",
+   "name": "Barnatore \"Dea\"",
+   "lat": 42.637136,
+   "lng": 21.093397,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/1215015781",
+   "name": "Barnatore A",
+   "lat": 42.657045,
+   "lng": 21.166709,
+   "street": "Rr. Gazmend Zajmi 13",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2162845592",
+   "name": "Barnatore Aura",
+   "lat": 42.648104,
+   "lng": 21.162335,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6281637367",
+   "name": "Barnatore Austriake",
+   "lat": 42.665415,
+   "lng": 21.157273,
+   "street": "UÇК 318",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7602908885",
+   "name": "Barnatore Farmaceutika",
+   "lat": 42.668188,
+   "lng": 21.17005,
+   "street": "Xheladin Kurbaliu",
+   "openingHours": "Mo-Su 07:00-21:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2185708275",
+   "name": "Barnatore Global Pharm",
+   "lat": 42.65521,
+   "lng": 21.156856,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7366548927",
+   "name": "Barnatore Joni",
+   "lat": 42.637406,
+   "lng": 21.093667,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/9872101716",
+   "name": "Barnatore Joni",
+   "lat": 42.640053,
+   "lng": 21.101048,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/9977153265",
+   "name": "Barnatore Kastrati",
+   "lat": 42.64309,
+   "lng": 21.110004,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/9455031701",
+   "name": "Barnatore Kushtrimi",
+   "lat": 42.66414,
+   "lng": 21.166666,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/11832833229",
+   "name": "Barnatore Kushtrimi",
+   "lat": 42.646563,
+   "lng": 21.178625,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/5766127065",
+   "name": "Barnatore Medifarm",
+   "lat": 42.641493,
+   "lng": 21.102691,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7602908985",
+   "name": "Barnatore Medikament",
+   "lat": 42.668351,
+   "lng": 21.169984,
+   "street": "Xheladin Kurbaliu",
+   "openingHours": "Mo-Su 07:30-21:30",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/695414447",
+   "name": "Barnatore Olisa",
+   "lat": 42.637116,
+   "lng": 21.092433,
+   "street": "Nëna Terezë",
+   "openingHours": "Mo-Sa",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2162845594",
+   "name": "Barnatore Pharmacy",
+   "lat": 42.648222,
+   "lng": 21.162334,
+   "street": "Mark Dizdari",
+   "openingHours": "24/7",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2162845593",
+   "name": "Barnatore Pharmacy NIKI",
+   "lat": 42.648124,
+   "lng": 21.162411,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/11202325096",
+   "name": "Barnatore Pharmaser.",
+   "lat": 42.651404,
+   "lng": 21.167475,
+   "street": "Afrim Maliqi",
+   "openingHours": "Mo-Sa 08:00-21:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6925425886",
+   "name": "Barnatore Salihaj",
+   "lat": 42.653652,
+   "lng": 21.158907,
+   "street": "Dëshmorët e Kombit",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2162845595",
+   "name": "Barnatore Zana Pharm",
+   "lat": 42.648156,
+   "lng": 21.162419,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14076319520",
+   "name": "Barnatorja e lagjës - SA Pharm",
+   "lat": 42.639931,
+   "lng": 21.157465,
+   "street": null,
+   "openingHours": "unknown",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4430459891",
+   "name": "Barnatorja Qendrore e QKUK-së",
+   "lat": 42.644352,
+   "lng": 21.165,
+   "street": "Malush Kosova",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4487709990",
+   "name": "Besniku Pharm",
+   "lat": 42.66694,
+   "lng": 21.175244,
+   "street": "Nazim Gafurri",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12163254055",
+   "name": "Bluepharm",
+   "lat": 42.649368,
+   "lng": 21.149993,
+   "street": null,
+   "openingHours": "Mo-Sa 07:00-21:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14189544070",
+   "name": "Bora",
+   "lat": 42.654453,
+   "lng": 21.154452,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14100890804",
+   "name": "Bora Pharmacy 1 Aktash",
+   "lat": 42.657082,
+   "lng": 21.164594,
+   "street": null,
+   "openingHours": "Mo-Fr 07:00-22:00; Sa 08:00-22:00; Su 09:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14074880421",
+   "name": "Bora Pharmacy 3 Rruga C",
+   "lat": 42.65152,
+   "lng": 21.177423,
+   "street": null,
+   "openingHours": "Mo-Fr 07:00-22:00; Sa 08:00-22:00; Su 10:00-20:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14068057330",
+   "name": "Bora Pharmacy Rruga A",
+   "lat": 42.64116,
+   "lng": 21.156222,
+   "street": null,
+   "openingHours": "unknown",
+   "phone": null,
+   "website": "https://www.borapharmacy.com/"
+  },
+  {
+   "id": "node/2162845822",
+   "name": "Chamomila",
+   "lat": 42.648201,
+   "lng": 21.16239,
+   "street": "Mark Dizdari",
+   "openingHours": "24/7",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14068863490",
+   "name": "Cosmo Pharmacy",
+   "lat": 42.64892,
+   "lng": 21.180773,
+   "street": null,
+   "openingHours": "Mo,We-Fr 08:00-23:00; Tu 06:00-21:00; Sa-Su 10:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12270966537",
+   "name": "D3 Pharmacy",
+   "lat": 42.650486,
+   "lng": 21.177902,
+   "street": null,
+   "openingHours": "unknown",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441787",
+   "name": "Daris pharm",
+   "lat": 42.650059,
+   "lng": 21.158909,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4426957489",
+   "name": "DIELLA",
+   "lat": 42.645335,
+   "lng": 21.169792,
+   "street": "Rruga B",
+   "openingHours": "Mo-Su 07:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4418735993",
+   "name": "Diella Barnatore",
+   "lat": 42.645295,
+   "lng": 21.169784,
+   "street": "Rruga B",
+   "openingHours": "Mo-Su 07:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4487691791",
+   "name": "Dona Pharm",
+   "lat": 42.664791,
+   "lng": 21.168628,
+   "street": "Rrustem Hyseni",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14206585133",
+   "name": "E&R Pharmacy",
+   "lat": 42.662478,
+   "lng": 21.16778,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/5109943333",
+   "name": "ELIF",
+   "lat": 42.651544,
+   "lng": 21.17616,
+   "street": "C",
+   "openingHours": "Mo-Su 09:00-18:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "way/670748929",
+   "name": "Era Pharm",
+   "lat": 42.62982,
+   "lng": 21.156866,
+   "street": "Gjilani",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441687",
+   "name": "Erythrea",
+   "lat": 42.616432,
+   "lng": 21.179178,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6073334285",
+   "name": "EU pharm",
+   "lat": 42.653419,
+   "lng": 21.151791,
+   "street": "Ilaz Kodra",
+   "openingHours": "Mo-Sa 08:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4426393689",
+   "name": "Family Pharm",
+   "lat": 42.659182,
+   "lng": 21.177955,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4487691991",
+   "name": "Family Pharm",
+   "lat": 42.66756,
+   "lng": 21.168281,
+   "street": "Ibrahim Lutfiu",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7437799285",
+   "name": "Farma-Company",
+   "lat": 42.667534,
+   "lng": 21.164325,
+   "street": "Ilir Konushevci",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2162845600",
+   "name": "Fati Im-Laboratori",
+   "lat": 42.648,
+   "lng": 21.161914,
+   "street": "Mark Dizdari D6",
+   "openingHours": "Mo-Fr 07:30-20:00; Sa 07:30-16:00",
+   "phone": "+38338559918",
+   "website": "http://www.fati-im.com"
+  },
+  {
+   "id": "node/826704200",
+   "name": "Fidanfarm",
+   "lat": 42.650795,
+   "lng": 21.157517,
+   "street": "Qendra tregetare Te Posta e re Ne meskat",
+   "openingHours": "09:00-20:00",
+   "phone": "+38338544031",
+   "website": null
+  },
+  {
+   "id": "node/4833160221",
+   "name": "Fjori Med 2",
+   "lat": 42.625743,
+   "lng": 21.146286,
+   "street": null,
+   "openingHours": "Mo-Su 08:00-10:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12890172603",
+   "name": "Fjori Med Rina",
+   "lat": 42.647926,
+   "lng": 21.157857,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "way/437264992",
+   "name": "Gentiana L",
+   "lat": 42.643673,
+   "lng": 21.166074,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6796985488",
+   "name": "Green",
+   "lat": 42.653274,
+   "lng": 21.150097,
+   "street": null,
+   "openingHours": "07:30-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2164086550",
+   "name": "Green Pharmacy",
+   "lat": 42.663873,
+   "lng": 21.161046,
+   "street": "Fehmi Agani",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/8856714207",
+   "name": "Green Pharmacy",
+   "lat": 42.637204,
+   "lng": 21.092839,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12890172701",
+   "name": "Hermes",
+   "lat": 42.637196,
+   "lng": 21.158375,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12890172801",
+   "name": "Humana NTP",
+   "lat": 42.648204,
+   "lng": 21.15793,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/5804383454",
+   "name": "IVY PHARM",
+   "lat": 42.655939,
+   "lng": 21.174658,
+   "street": "Rrahim Beqiri 39",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441786",
+   "name": "Jeta",
+   "lat": 42.648529,
+   "lng": 21.157549,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4430436893",
+   "name": "JONI 1",
+   "lat": 42.652809,
+   "lng": 21.176459,
+   "street": "Rruga B",
+   "openingHours": "Mo-Su 20:00-09:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4476522323",
+   "name": "Kalabria",
+   "lat": 42.65842,
+   "lng": 21.146753,
+   "street": "Ahmet Krasniqi",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6281126241",
+   "name": "Kastrati",
+   "lat": 42.656746,
+   "lng": 21.154952,
+   "street": "Robert Doll",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4985654021",
+   "name": "Kastrati Pharmacy",
+   "lat": 42.653977,
+   "lng": 21.168006,
+   "street": "Hajrullah Abdullahu",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4568436791",
+   "name": "KRKA DEPO PHARMACEUTIKE",
+   "lat": 42.651433,
+   "lng": 21.176127,
+   "street": "Rruga B",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4426957589",
+   "name": "KUSHTRIMI",
+   "lat": 42.64508,
+   "lng": 21.169702,
+   "street": "Rruga B",
+   "openingHours": "Mo-Su 07:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4418803702",
+   "name": "Kushtrimi Barnatore",
+   "lat": 42.64536,
+   "lng": 21.169804,
+   "street": "Rruga B",
+   "openingHours": "Mo-Su 07:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/5695830121",
+   "name": "LINDI FARM",
+   "lat": 42.656071,
+   "lng": 21.181696,
+   "street": "Gazmend Zajmi",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14206413678",
+   "name": "MEDICON BARNATORE",
+   "lat": 42.670863,
+   "lng": 21.162334,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4532493690",
+   "name": "Medifarm",
+   "lat": 42.64067,
+   "lng": 21.099751,
+   "street": "Nëna Tereza",
+   "openingHours": "24/7",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441885",
+   "name": "Mega",
+   "lat": 42.652609,
+   "lng": 21.158259,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695442285",
+   "name": "Meld",
+   "lat": 42.65458,
+   "lng": 21.167238,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441886",
+   "name": "Melisa",
+   "lat": 42.6505,
+   "lng": 21.159029,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/9862012888",
+   "name": "MIRIPHARM",
+   "lat": 42.658122,
+   "lng": 21.184403,
+   "street": "Isa Kastrati 300",
+   "openingHours": "Mo-Su 07:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441686",
+   "name": "MN pharm",
+   "lat": 42.644683,
+   "lng": 21.158161,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4430459892",
+   "name": "MN PHARM",
+   "lat": 42.644668,
+   "lng": 21.158457,
+   "street": "Behar Begolli",
+   "openingHours": "Mo-Su 08:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6281514403",
+   "name": "Natural Pharmacy",
+   "lat": 42.677799,
+   "lng": 21.162056,
+   "street": "Vëllezërit Fazliu",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/8511431537",
+   "name": "Natyra-J",
+   "lat": 42.650777,
+   "lng": 21.168437,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4435010491",
+   "name": "Neo Dent",
+   "lat": 42.666601,
+   "lng": 21.176484,
+   "street": null,
+   "openingHours": "Mo-Su 08:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4487709989",
+   "name": "NL-Pharm",
+   "lat": 42.666858,
+   "lng": 21.17521,
+   "street": "Nazim Gafurri",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12890172802",
+   "name": "Nova Pharm",
+   "lat": 42.649063,
+   "lng": 21.159249,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4786478521",
+   "name": "Orhidea Pharmacy",
+   "lat": 42.652188,
+   "lng": 21.154191,
+   "street": null,
+   "openingHours": "Mo-Sa 09:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4825825930",
+   "name": "orthomedica orthopedic shop",
+   "lat": 42.649069,
+   "lng": 21.163357,
+   "street": "Faik Konica Ulpiana D8",
+   "openingHours": "Mo-Sa 08:00-20:00",
+   "phone": "+38338554665",
+   "website": "http://www.ortho-medica.com"
+  },
+  {
+   "id": "node/7695441785",
+   "name": "Pentagon 6",
+   "lat": 42.644399,
+   "lng": 21.159992,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2162845644",
+   "name": "Pharmacy Barnatore",
+   "lat": 42.644556,
+   "lng": 21.160274,
+   "street": "Tahir Uka 32",
+   "openingHours": "Mo-Su 08:00-21:00",
+   "phone": "+38344257144",
+   "website": null
+  },
+  {
+   "id": "node/13750428789",
+   "name": "PharmaTree - Interex (2)",
+   "lat": 42.647121,
+   "lng": 21.163223,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4421095789",
+   "name": "Pri pharm",
+   "lat": 42.660647,
+   "lng": 21.167256,
+   "street": "Rrustem Statovci",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12163254095",
+   "name": "Prime Pharma",
+   "lat": 42.649384,
+   "lng": 21.151175,
+   "street": null,
+   "openingHours": "Mo-Sa 08:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441487",
+   "name": "Pro pharma",
+   "lat": 42.65289,
+   "lng": 21.153206,
+   "street": null,
+   "openingHours": "Mo-Sa 09:00-21:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/11098969248",
+   "name": "Pure Pharm",
+   "lat": 42.642704,
+   "lng": 21.099889,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/800644182",
+   "name": "RAMKU Pharmacy",
+   "lat": 42.655653,
+   "lng": 21.17721,
+   "street": "Gazmend Zajmi Lok B 1/2",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4426957389",
+   "name": "REXAL B",
+   "lat": 42.645248,
+   "lng": 21.169771,
+   "street": "Rruga B",
+   "openingHours": "Mo-Su 07:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4430436797",
+   "name": "Rexall",
+   "lat": 42.652659,
+   "lng": 21.158679,
+   "street": "Bulevardi i Dëshmorëve",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4418734996",
+   "name": "Rexall B Pharmacy",
+   "lat": 42.64518,
+   "lng": 21.169745,
+   "street": "Rruga B",
+   "openingHours": "Mo-Su 10:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/11900381805",
+   "name": "Riga Pharm",
+   "lat": 42.647548,
+   "lng": 21.130873,
+   "street": null,
+   "openingHours": "08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/13184557264",
+   "name": "Riga Pharm",
+   "lat": 42.641549,
+   "lng": 21.103547,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/13359663793",
+   "name": "Riga Pharm",
+   "lat": 42.653607,
+   "lng": 21.151307,
+   "street": null,
+   "openingHours": "08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14206678222",
+   "name": "Riga Pharm 38",
+   "lat": 42.664215,
+   "lng": 21.165226,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14073557235",
+   "name": "Riga Pharm Aktash",
+   "lat": 42.657239,
+   "lng": 21.165872,
+   "street": null,
+   "openingHours": "Mo-Su 06:45-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4743774322",
+   "name": "Rio Pharm",
+   "lat": 42.65571,
+   "lng": 21.173874,
+   "street": "Gazmend Zajmi",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6975110585",
+   "name": "Rio Pharm",
+   "lat": 42.655718,
+   "lng": 21.173916,
+   "street": "Gazmend Zajmi",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/7695441488",
+   "name": "SF FARMACIA",
+   "lat": 42.65359,
+   "lng": 21.153242,
+   "street": "Salih Çeku",
+   "openingHours": "Mo-Sa 07:00-21:00",
+   "phone": null,
+   "website": "https://www.facebook.com/sffarmacia"
+  },
+  {
+   "id": "node/11008087476",
+   "name": "SF FARMACIA",
+   "lat": 42.63404,
+   "lng": 21.153935,
+   "street": "Riçard Holbruk 11",
+   "openingHours": "Mo-Sa 07:00-21:00",
+   "phone": null,
+   "website": "https://www.facebook.com/sffarmacia"
+  },
+  {
+   "id": "node/11008090889",
+   "name": "SF FARMACIA",
+   "lat": 42.645806,
+   "lng": 21.176359,
+   "street": "Muharrem Fejza",
+   "openingHours": "Mo-Sa 07:00-21:00",
+   "phone": null,
+   "website": "https://www.facebook.com/sffarmacia"
+  },
+  {
+   "id": "node/4350830432",
+   "name": "SHËNDETI",
+   "lat": 42.643546,
+   "lng": 21.166832,
+   "street": "Holger Pederesen",
+   "openingHours": "Mo-Su 07:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6052808685",
+   "name": "Smartpharm",
+   "lat": 42.640937,
+   "lng": 21.100787,
+   "street": "Hajrullah Zymi",
+   "openingHours": "Mo-Su 08:00-22:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14074880422",
+   "name": "Sweden Pharmacy",
+   "lat": 42.651844,
+   "lng": 21.177028,
+   "street": null,
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4458516091",
+   "name": "Swiss Pharm",
+   "lat": 42.666656,
+   "lng": 21.176415,
+   "street": "Nazim Gafurri",
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12890172601",
+   "name": "Tana (Pika Pika)",
+   "lat": 42.631638,
+   "lng": 21.151811,
+   "street": null,
+   "openingHours": "Mo-Su 09:00-22:30",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4985654022",
+   "name": "Tosi",
+   "lat": 42.649214,
+   "lng": 21.1635,
+   "street": null,
+   "openingHours": "Mo-Su 08:00-23:00",
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/4350830431",
+   "name": "USA-D",
+   "lat": 42.643483,
+   "lng": 21.166743,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/2164142526",
+   "name": "Valeriana",
+   "lat": 42.661574,
+   "lng": 21.159685,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/5625281222",
+   "name": "Valeriana",
+   "lat": 42.655614,
+   "lng": 21.156896,
+   "street": "Bill Klinton",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14206413670",
+   "name": "Valeriana",
+   "lat": 42.667597,
+   "lng": 21.166441,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/1623017886",
+   "name": "Vita Barnatore",
+   "lat": 42.652581,
+   "lng": 21.158539,
+   "street": "Bulevardi i Dëshmorëve",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/14064472614",
+   "name": "Well Pharmacy",
+   "lat": 42.658635,
+   "lng": 21.151722,
+   "street": null,
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/6264067983",
+   "name": "Yess Pharma",
+   "lat": 42.658957,
+   "lng": 21.141115,
+   "street": "Ferid Curri",
+   "openingHours": null,
+   "phone": null,
+   "website": null
+  },
+  {
+   "id": "node/12163254056",
+   "name": "Your Pharmacy",
+   "lat": 42.648976,
+   "lng": 21.151973,
+   "street": null,
+   "openingHours": "Mo-Sa 08:00-22:00",
+   "phone": null,
+   "website": null
+  }
+ ]
+}
