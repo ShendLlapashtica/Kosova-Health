@@ -101,7 +101,7 @@ export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({
               <span className="text-[11px] font-bold font-label-tag uppercase tracking-wider px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container">
                 Clinical Biomarker Match
               </span>
-              <span className="text-xs text-outline">• Synced from Dr. Arben Krasniqi's Panel (Oct 24, 2024)</span>
+              <span className="text-xs text-outline">• Synced from Dr. Arben Krasniqi's Panel (Oct 3, 2026)</span>
             </div>
             <h1 className="font-headline-md text-xl sm:text-2xl font-bold text-on-surface tracking-tight">
               {language === 'al'

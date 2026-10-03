@@ -34,13 +34,13 @@ export const DeficiencyDiagrams: React.FC<DeficiencyDiagramsProps> = ({
 
   // 7-Day Trend data
   const trendDays = [
-    { day: '06 May', bp: 128, pulse: 72 },
-    { day: '07 May', bp: 130, pulse: 75 },
-    { day: '08 May', bp: 135, pulse: 80 },
-    { day: '09 May', bp: 131, pulse: 76 },
-    { day: '10 May', bp: 136, pulse: 82 },
-    { day: '11 May', bp: 133, pulse: 77 },
-    { day: '12 May (Today)', bp: biomarkers.bpSys, pulse: biomarkers.pulse },
+    { day: '27 Sep', bp: 128, pulse: 72 },
+    { day: '28 Sep', bp: 130, pulse: 75 },
+    { day: '29 Sep', bp: 135, pulse: 80 },
+    { day: '30 Sep', bp: 131, pulse: 76 },
+    { day: '01 Oct', bp: 136, pulse: 82 },
+    { day: '02 Oct', bp: 133, pulse: 77 },
+    { day: '03 Oct (Today)', bp: biomarkers.bpSys, pulse: biomarkers.pulse },
   ];
 
   return (
@@ -145,7 +145,7 @@ export const DeficiencyDiagrams: React.FC<DeficiencyDiagramsProps> = ({
           <div className="text-sm font-bold text-on-surface mt-0.5">Avicena Lab Prishtina</div>
           <div className="flex items-center gap-1 text-xs text-on-surface-variant">
             <span className="material-symbols-outlined text-[14px]">event_available</span>
-            <span>Sample Collected: 12 May 2024</span>
+            <span>Sample Collected: 03 Oct 2026</span>
           </div>
         </div>
       </div>
@@ -471,16 +471,16 @@ export const DeficiencyDiagrams: React.FC<DeficiencyDiagramsProps> = ({
                 <span className="material-symbols-outlined text-[22px]">sunny</span>
               </div>
               <span className="px-2.5 py-0.5 rounded-full bg-primary-fixed/40 text-on-primary-fixed-variant text-[10px] font-bold uppercase">
-                TODAY: UV 6 (OPTIMAL)
+                TODAY: UV 3 (MODERATE)
               </span>
             </div>
             <h4 className="text-base font-bold text-on-surface">Direct Sunlight Protocol</h4>
             <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-              Expose arms & face for <strong>20–25 mins</strong> between <strong>10:00 – 13:00</strong> in Prishtina UV conditions. Enhances non-enzymatic pre-vitamin D3 conversion without sunscreen barrier during this limited safe window.
+              Expose arms & face for <strong>25–30 mins</strong> between <strong>11:30 – 13:30</strong> in Prishtina UV conditions. Enhances non-enzymatic pre-vitamin D3 conversion without sunscreen barrier during this limited safe window.
             </p>
             <div className="flex items-center gap-1.5 text-xs text-tertiary font-semibold pt-1">
               <span className="material-symbols-outlined text-[16px]">schedule</span>
-              <span>Best window today: 11:15 AM – 11:40 AM</span>
+              <span>Best window today: 12:05 – 12:45</span>
             </div>
           </div>
 
