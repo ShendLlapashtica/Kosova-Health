@@ -21,6 +21,7 @@ interface LabBiomarkersInputProps {
   onNavigateToDiagrams: () => void;
   onOpenConsultation: () => void;
   onNotification: (msg: string) => void;
+  onReportLoaded?: (r: LabReportResult) => void;
 }
 
 export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
@@ -31,6 +32,7 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
   onNavigateToDiagrams,
   onOpenConsultation,
   onNotification,
+  onReportLoaded,
 }) => {
   const [activeTab, setActiveTab] = useState<'ocr' | 'csv' | 'manual'>('ocr');
   const [isProcessingFile, setIsProcessingFile] = useState(false);
@@ -102,6 +104,7 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
         ...Object.fromEntries(result.values.map((v) => [v.key, v.value])),
       }));
       setReport(result);
+      onReportLoaded?.(result);
       const count = result.values.filter((v) => v.key !== 'bpDia').length;
       onNotification(
         language === 'al'

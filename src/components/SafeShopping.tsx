@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Language } from '../types';
+import { BiomarkerData, Language } from '../types';
+import { PickedForYou, LabSource } from './PickedForYou';
+import { parseLabReport } from '../lib/labReport';
 import {
   ALLERGENS,
   AllergenId,
@@ -21,6 +23,10 @@ import { captureAndDecode, startCamera, startScanLoop, stopCamera } from '../lib
 interface Props {
   language: Language;
   onNotification: (msg: string) => void;
+  biomarkers: BiomarkerData;
+  setBiomarkers: React.Dispatch<React.SetStateAction<BiomarkerData>>;
+  labSource: LabSource | null;
+  setLabSource: (s: LabSource | null) => void;
 }
 
 const store = {
@@ -58,7 +64,7 @@ const VERDICT_STYLE = {
 
 const priceText = (p?: number) => (p === undefined ? '—' : `€${p.toFixed(2)}`);
 
-export const SafeShopping: React.FC<Props> = ({ language, onNotification }) => {
+export const SafeShopping: React.FC<Props> = ({ language, onNotification, biomarkers, setBiomarkers, labSource, setLabSource }) => {
   const t = (al: string, en: string) => (language === 'al' ? al : en);
   const name = (id: AllergenId) => (language === 'al' ? allergenById[id].al : allergenById[id].en);
 
@@ -74,6 +80,7 @@ export const SafeShopping: React.FC<Props> = ({ language, onNotification }) => {
   const [scanning, setScanning] = useState(false);
   const [manualCode, setManualCode] = useState('');
   const [readingTest, setReadingTest] = useState(false);
+  const [readingLab, setReadingLab] = useState(false);
   const checkRef = useRef<HTMLDivElement>(null);
 
   const setProfile = (p: AllergenId[]) => {
@@ -110,6 +117,28 @@ export const SafeShopping: React.FC<Props> = ({ language, onNotification }) => {
     const off = await fetchOff(barcode);
     setChecks((c) => ({ ...c, [barcode]: off }));
     setChecking({ product: match, code: barcode, off, loading: false });
+  };
+
+  const onLabUpload = async (file: File) => {
+    setReadingLab(true);
+    try {
+      const r = await parseLabReport(file);
+      if (!r.values.length) {
+        onNotification(t(`Nuk u gjetën vlera në "${file.name}".`, `No values found in "${file.name}".`));
+        return;
+      }
+      setBiomarkers((prev) => ({ ...prev, ...Object.fromEntries(r.values.map((v) => [v.key, v.value])) }));
+      setLabSource({ fileName: file.name, date: r.sampleDate });
+      onNotification(t(`U lexuan ${r.values.filter((v) => v.key !== 'bpDia').length} vlera nga "${file.name}" — ja çfarë të blesh.`, `Read ${r.values.filter((v) => v.key !== 'bpDia').length} values from "${file.name}" — here's what to buy.`));
+    } catch {
+      onNotification(t('Analizat nuk mund të lexoheshin. Provo një PDF tjetër.', "Couldn't read the results. Try another PDF."));
+    } finally {
+      setReadingLab(false);
+    }
+  };
+  const onTrySample = async () => {
+    const blob = await fetch('/sample-lab-report.pdf').then((r) => r.blob());
+    onLabUpload(new File([blob], 'Raport-Shembull-KosovaHealth.pdf', { type: 'application/pdf' }));
   };
 
   const onTestUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,6 +225,20 @@ export const SafeShopping: React.FC<Props> = ({ language, onNotification }) => {
           {t('Skano produktin', 'Scan a product')}
         </button>
       </div>
+
+      <PickedForYou
+        language={language}
+        products={products}
+        profile={profile}
+        biomarkers={biomarkers}
+        labSource={labSource}
+        uploading={readingLab}
+        onUploadLab={onLabUpload}
+        onTrySample={onTrySample}
+        inList={inList}
+        toggleList={toggleList}
+        openCheck={(p) => openCheck(p)}
+      />
 
       {/* Profile */}
       <section className="rounded-xl bg-surface-container-lowest p-4 sm:p-5 shadow-sm border border-surface-container-high/60 flex flex-col gap-3">
