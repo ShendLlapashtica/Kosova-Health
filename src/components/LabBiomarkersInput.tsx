@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BiomarkerData, PatientProfile, Language } from '../types';
 import { BENCHMARK_NORMALS } from '../data/mockData';
+import {
+  BIOMARKER_META,
+  BiomarkerKey,
+  LabReportResult,
+  grade,
+  loadPdfReader,
+  parseLabLines,
+  parseLabReport,
+} from '../lib/labReport';
+
+const SAMPLE_REPORT_URL = '/sample-lab-report.pdf';
 
 interface LabBiomarkersInputProps {
   biomarkers: BiomarkerData;
@@ -22,8 +33,10 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
   onNotification,
 }) => {
   const [activeTab, setActiveTab] = useState<'ocr' | 'csv' | 'manual'>('ocr');
-  const [activeBufferFileName, setActiveBufferFileName] = useState('Sample_Avicena_Prishtina_2024.pdf');
   const [isProcessingFile, setIsProcessingFile] = useState(false);
+  const [report, setReport] = useState<LabReportResult | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   // Calculate BMI and status
   const bmi = patient.weightKg / Math.pow(patient.heightCm / 100, 2);
@@ -49,21 +62,113 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
   };
   const metabolicScore = calcScore();
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setActiveBufferFileName(file.name);
-      setIsProcessingFile(true);
-      setTimeout(() => {
-        setIsProcessingFile(false);
+  // Read a lab report (PDF, or CSV from the CSV tab), push the values into the app state.
+  const handleFile = async (file: File) => {
+    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    const isCsv = /\.csv$/i.test(file.name);
+    if (!isPdf && !isCsv) {
+      onNotification(
+        language === 'al'
+          ? `"${file.name}" nuk është PDF. Ngarko raportin laboratorik në PDF.`
+          : `"${file.name}" is not a PDF. Please upload the lab report as a PDF.`
+      );
+      return;
+    }
+
+    setActiveTab(isPdf ? 'ocr' : 'csv');
+    setIsProcessingFile(true);
+    const minDelay = new Promise((r) => setTimeout(r, 700)); // let the scan state register
+    try {
+      const result: LabReportResult = isPdf
+        ? await parseLabReport(file)
+        : await file.text().then((text) => {
+            const lines = text.split(/\r?\n/).map((l) => l.replace(/[,;\t_]/g, '  '));
+            return { fileName: file.name, pages: 1, lineCount: lines.length, ...parseLabLines(lines) };
+          });
+      await minDelay;
+
+      if (result.values.length === 0) {
+        setReport(result);
         onNotification(
           language === 'al'
-            ? `Raporti laboratorik "${file.name}" u skanua me sukses nga QKUK OCR Engine!`
-            : `Laboratory report "${file.name}" processed successfully via OCR Engine!`
+            ? `Nuk u gjet asnjë parametër i njohur në "${file.name}". A është PDF me tekst (jo skanim)?`
+            : `No known biomarkers found in "${file.name}". Is it a text PDF (not a scan)?`
         );
-      }, 1000);
+        return;
+      }
+
+      setBiomarkers((prev) => ({
+        ...prev,
+        ...Object.fromEntries(result.values.map((v) => [v.key, v.value])),
+      }));
+      setReport(result);
+      const count = result.values.filter((v) => v.key !== 'bpDia').length;
+      onNotification(
+        language === 'al'
+          ? `U lexuan ${count} parametra nga "${file.name}" — diagramet u përditësuan.`
+          : `Read ${count} biomarkers from "${file.name}" — diagrams updated.`
+      );
+      requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+    } catch (err) {
+      await minDelay;
+      console.error('Lab report parse failed', err);
+      onNotification(
+        language === 'al'
+          ? `"${file.name}" nuk mund të lexohej. Provo një PDF tjetër.`
+          : `Couldn't read "${file.name}". Try another PDF.`
+      );
+    } finally {
+      setIsProcessingFile(false);
     }
   };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow dropping the same file again
+    if (file) void handleFile(file);
+  };
+
+  // Accept a dropped report anywhere on the page, so a near-miss doesn't make the
+  // browser navigate away to the PDF mid-presentation.
+  const handleFileRef = useRef(handleFile);
+  handleFileRef.current = handleFile;
+  useEffect(() => {
+    const hasFiles = (e: DragEvent) => e.dataTransfer?.types.includes('Files') ?? false;
+    // dragover fires every ~50ms while a file hovers the page; when it stops
+    // (drop, Esc, left the window) the overlay hides itself.
+    let hideTimer: ReturnType<typeof setTimeout> | undefined;
+    const onDragOver = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      setIsDragging(true);
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => setIsDragging(false), 300);
+      void loadPdfReader();
+    };
+    const onDrop = (e: DragEvent) => {
+      clearTimeout(hideTimer);
+      setIsDragging(false);
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      const file = e.dataTransfer?.files[0];
+      if (file) void handleFileRef.current(file);
+    };
+    window.addEventListener('dragover', onDragOver);
+    window.addEventListener('drop', onDrop);
+    return () => {
+      clearTimeout(hideTimer);
+      window.removeEventListener('dragover', onDragOver);
+      window.removeEventListener('drop', onDrop);
+    };
+  }, []);
+
+  const t = (al: string, en: string) => (language === 'al' ? al : en);
+  const shownValues = report?.values.filter((v) => v.key !== 'bpDia') ?? [];
+  const missingKeys = report
+    ? (Object.keys(BIOMARKER_META) as BiomarkerKey[]).filter(
+        (k) => k !== 'bpDia' && !report.values.some((v) => v.key === k)
+      )
+    : [];
 
   const handleLoadNormals = () => {
     setBiomarkers(BENCHMARK_NORMALS);
@@ -98,6 +203,19 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
 
   return (
     <div className="flex flex-col w-full max-w-[1280px] mx-auto px-4 md:px-8 py-6 gap-6">
+      {/* Page-wide drop target while a file is dragged over the window */}
+      {isDragging && (
+        <div className="fixed inset-0 z-50 pointer-events-none bg-primary/10 backdrop-blur-[2px] flex items-center justify-center p-6">
+          <div className="w-full max-w-lg h-64 rounded-2xl border-4 border-dashed border-primary bg-surface-container-lowest/95 shadow-2xl flex flex-col items-center justify-center gap-2 text-center px-6">
+            <span className="material-symbols-outlined text-primary text-[48px]">file_download</span>
+            <p className="text-lg font-bold text-on-surface">{t('Lësho raportin PDF këtu', 'Drop the PDF report here')}</p>
+            <p className="text-xs text-on-surface-variant">
+              {t('Vlerat lexohen menjëherë në shfletues — asgjë nuk dërgohet në server.', 'Values are read right in the browser — nothing is uploaded to a server.')}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Top Editorial Header & Trust Strip */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div className="max-w-2xl">
@@ -209,7 +327,7 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
             <span className="text-xs sm:text-sm font-bold font-mono text-outline">
               {biomarkers.bpSys}/{biomarkers.bpDia} mmHg
             </span>
-            <span className="block text-[10px] text-outline font-medium">Elevated Stage 1</span>
+            <span className="block text-[10px] text-outline font-medium">{isBpElevated ? 'Elevated Stage 1' : 'Normal'}</span>
           </div>
 
           <div className="p-2.5 rounded-lg bg-surface-container-low">
@@ -333,23 +451,36 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
                 </div>
 
                 {/* Drag & Drop Zone */}
-                <div className="relative group cursor-pointer rounded-xl bg-surface-container-low/60 hover:bg-surface-container-high/60 transition-all p-8 flex flex-col items-center justify-center text-center border-2 border-dashed border-outline-variant hover:border-primary">
+                <div
+                  className={`relative group cursor-pointer rounded-xl transition-all p-8 flex flex-col items-center justify-center text-center border-2 border-dashed ${
+                    isDragging || isProcessingFile
+                      ? 'bg-primary/5 border-primary'
+                      : 'bg-surface-container-low/60 hover:bg-surface-container-high/60 border-outline-variant hover:border-primary'
+                  }`}
+                >
                   <input
                     type="file"
-                    accept=".pdf,.png,.jpg,.jpeg"
+                    accept=".pdf,application/pdf"
                     onChange={handleFileUpload}
+                    disabled={isProcessingFile}
+                    aria-label={t('Ngarko raportin laboratorik (PDF)', 'Upload lab report (PDF)')}
                     className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
                   />
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-[32px]">cloud_upload</span>
+                    <span className={`material-symbols-outlined text-[32px] ${isProcessingFile ? 'animate-spin' : ''}`}>
+                      {isProcessingFile ? 'progress_activity' : 'cloud_upload'}
+                    </span>
                   </div>
                   <p className="text-sm sm:text-base font-bold text-on-surface">
-                    {language === 'al'
-                      ? 'Lësho raportin laboratorik ose kliko për të shfletuar'
-                      : 'Drop clinical lab report or click to browse'}
+                    {isProcessingFile
+                      ? t('Duke lexuar raportin…', 'Reading the report…')
+                      : t('Lësho raportin laboratorik ose kliko për të shfletuar', 'Drop clinical lab report or click to browse')}
                   </p>
                   <p className="text-xs text-on-surface-variant mt-1">
-                    Multi-page standard vector PDF or scanned 300+ DPI images
+                    {t(
+                      'PDF me tekst nga laboratori (jo foto) — mund ta lëshosh kudo në faqe',
+                      'Text-based lab PDF (not a photo) — you can drop it anywhere on the page'
+                    )}
                   </p>
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
                     <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface-variant font-medium shadow-xs">
@@ -367,53 +498,120 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
                   </div>
                 </div>
 
-                {/* Extraction Preview Reel */}
-                <div className="bg-surface-container-low rounded-xl p-4 flex flex-col gap-2.5 border border-surface-container-high/40">
-                  <div className="flex items-center justify-between">
+                {/* Extracted values — what the parser actually read from the dropped file */}
+                <div
+                  ref={resultsRef}
+                  className="bg-surface-container-low rounded-xl p-4 flex flex-col gap-2.5 border border-surface-container-high/40 scroll-mt-24"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary text-[18px]">
-                        document_scanner
-                      </span>
+                      <span className="material-symbols-outlined text-primary text-[18px]">document_scanner</span>
                       <span className="text-xs sm:text-sm font-bold text-on-surface">
-                        {language === 'al' ? 'Buffer Aktiv i Ekstraktimeve OCR' : 'Active OCR Extraction Buffer'}
+                        {t('Të dhënat e lexuara nga raporti', 'Data read from the report')}
                       </span>
                     </div>
-                    <span className="font-mono text-xs text-primary font-bold">
-                      {isProcessingFile ? 'Skanimi në ecuri...' : activeBufferFileName}
-                    </span>
+                    {report && (
+                      <span className="font-mono text-xs text-primary font-bold truncate max-w-full">
+                        {report.fileName}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
-                    <div className="bg-surface-container-lowest p-3 rounded-lg flex items-center justify-between shadow-xs">
-                      <div>
-                        <span className="text-xs text-on-surface-variant block">Magnesium (Mg)</span>
-                        <span className="font-mono text-sm text-error font-bold">{biomarkers.mg} mg/dL</span>
-                      </div>
-                      <span className="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[10px] font-bold">
-                        Low • 98% conf
-                      </span>
+                  {!report && (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1">
+                      <p className="text-xs text-on-surface-variant">
+                        {t(
+                          'Ende asnjë raport. Lësho një PDF dhe vlerat shfaqen këtu, me rreshtin ku u gjetën.',
+                          'No report yet. Drop a PDF and the values appear here, with the line they were found on.'
+                        )}
+                      </p>
+                      <a
+                        href={SAMPLE_REPORT_URL}
+                        download="Raport-Shembull-KosovaHealth.pdf"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-lowest text-primary text-xs font-bold border border-surface-container hover:bg-surface-container-high transition-colors shrink-0 self-start sm:self-auto"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">download</span>
+                        {t('Shkarko raportin shembull', 'Download sample report')}
+                      </a>
                     </div>
+                  )}
 
-                    <div className="bg-surface-container-lowest p-3 rounded-lg flex items-center justify-between shadow-xs">
-                      <div>
-                        <span className="text-xs text-on-surface-variant block">25-OH Vitamin D3</span>
-                        <span className="font-mono text-sm text-error font-bold">{biomarkers.vitd} ng/mL</span>
+                  {report && (
+                    <>
+                      <div className="flex flex-wrap gap-1.5 text-[11px]">
+                        {report.patientName && (
+                          <span className="px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface">
+                            {t('Pacienti', 'Patient')}: <b>{report.patientName}</b>
+                          </span>
+                        )}
+                        {report.sampleDate && (
+                          <span className="px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface">
+                            {t('Data', 'Date')}: <b>{report.sampleDate}</b>
+                          </span>
+                        )}
+                        <span className="px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface-variant">
+                          {report.pages} {t('faqe', report.pages === 1 ? 'page' : 'pages')} ·{' '}
+                          {report.lineCount} {t('rreshta', 'lines')}
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-bold">
+                          {shownValues.length} / 10 {t('parametra', 'biomarkers')}
+                        </span>
                       </div>
-                      <span className="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[10px] font-bold">
-                        Deficient
-                      </span>
-                    </div>
 
-                    <div className="bg-surface-container-lowest p-3 rounded-lg flex items-center justify-between shadow-xs">
-                      <div>
-                        <span className="text-xs text-on-surface-variant block">Fasting Glucose</span>
-                        <span className="font-mono text-sm text-primary font-bold">{biomarkers.glu} mg/dL</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {shownValues.map((v) => {
+                          const meta = BIOMARKER_META[v.key];
+                          const isBp = v.key === 'bpSys';
+                          const status = isBp
+                            ? biomarkers.bpSys > 120 || biomarkers.bpDia > 80
+                              ? 'high'
+                              : 'normal'
+                            : grade(v.key, v.value);
+                          return (
+                            <div key={v.key} className="bg-surface-container-lowest p-2.5 rounded-lg shadow-xs min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs text-on-surface-variant truncate">
+                                  {language === 'al' ? meta.al : meta.en}
+                                </span>
+                                <span
+                                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
+                                    status === 'normal'
+                                      ? 'bg-secondary-container text-on-secondary-container'
+                                      : 'bg-error-container text-on-error-container'
+                                  }`}
+                                >
+                                  {status === 'low' ? t('I ulët', 'Low') : status === 'high' ? t('I lartë', 'High') : t('Normal', 'Normal')}
+                                </span>
+                              </div>
+                              <span
+                                className={`font-mono text-sm font-bold ${status === 'normal' ? 'text-primary' : 'text-error'}`}
+                              >
+                                {isBp ? `${biomarkers.bpSys}/${biomarkers.bpDia}` : v.value} {meta.unit}
+                              </span>
+                              {v.convertedFrom && (
+                                <span className="text-[10px] text-outline ml-1.5">
+                                  ({t('nga', 'from')} {v.convertedFrom})
+                                </span>
+                              )}
+                              <span
+                                className="block text-[10px] font-mono text-outline truncate mt-0.5"
+                                title={v.sourceLine}
+                              >
+                                “{v.sourceLine}”
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">
-                        Optimal
-                      </span>
-                    </div>
-                  </div>
+
+                      {missingKeys.length > 0 && shownValues.length > 0 && (
+                        <p className="text-[11px] text-outline">
+                          {t('Nuk u gjetën në raport (mbetën vlerat e mëparshme):', 'Not in the report (previous values kept):')}{' '}
+                          {missingKeys.map((k) => (language === 'al' ? BIOMARKER_META[k].al : BIOMARKER_META[k].en)).join(', ')}
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -450,7 +648,7 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
                     <span className="material-symbols-outlined text-[24px]">file_present</span>
                   </div>
                   <p className="text-sm font-bold text-on-surface">
-                    Drop .CSV or .XLSX telemetry data
+                    Drop .CSV telemetry data
                   </p>
                   <p className="text-xs text-on-surface-variant mt-1">
                     Automatic header-matching for: Biomarker, Value, Unit, Reference_Low, Reference_High
@@ -458,7 +656,7 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
                   <div className="mt-4 flex gap-2">
                     <label className="px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-bold hover:bg-primary-container transition-colors cursor-pointer">
                       Select Local Spreadsheet
-                      <input type="file" accept=".csv,.xlsx" onChange={handleFileUpload} className="hidden" />
+                      <input type="file" accept=".csv,text/csv" onChange={handleFileUpload} className="hidden" />
                     </label>
                   </div>
                 </div>
@@ -869,8 +1067,8 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
                   <span className="text-[10px] text-on-surface-variant">Optimal 60 - 100 bpm</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-bold text-secondary">{biomarkers.pulse} bpm</span>
-                  <span className="block text-[10px] font-bold text-secondary uppercase">Optimal</span>
+                  <span className={`font-mono font-bold ${grade('pulse', biomarkers.pulse) === 'normal' ? 'text-secondary' : 'text-error'}`}>{biomarkers.pulse} bpm</span>
+                  <span className={`block text-[10px] font-bold uppercase ${grade('pulse', biomarkers.pulse) === 'normal' ? 'text-secondary' : 'text-error'}`}>{grade('pulse', biomarkers.pulse) === 'normal' ? 'Optimal' : grade('pulse', biomarkers.pulse) === 'low' ? 'Bradycardia' : 'Tachycardia'}</span>
                 </div>
               </div>
 
@@ -897,8 +1095,8 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
                   <span className="text-[10px] text-on-surface-variant">Ref: 70 - 99 mg/dL</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono font-bold text-secondary">{biomarkers.glu} mg/dL</span>
-                  <span className="block text-[10px] font-bold text-secondary uppercase">Optimal</span>
+                  <span className={`font-mono font-bold ${grade('glu', biomarkers.glu) === 'normal' ? 'text-secondary' : 'text-error'}`}>{biomarkers.glu} mg/dL</span>
+                  <span className={`block text-[10px] font-bold uppercase ${grade('glu', biomarkers.glu) === 'normal' ? 'text-secondary' : 'text-error'}`}>{grade('glu', biomarkers.glu) === 'normal' ? 'Optimal' : grade('glu', biomarkers.glu) === 'high' ? 'Elevated' : 'Low'}</span>
                 </div>
               </div>
             </div>

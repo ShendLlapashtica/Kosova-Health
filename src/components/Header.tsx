@@ -1,5 +1,7 @@
 import React from 'react';
 import { TabType, Language, PatientProfile } from '../types';
+import AL from 'country-flag-icons/react/3x2/AL';
+import US from 'country-flag-icons/react/3x2/US';
 import { LOGO_URL, DOCTOR_PHOTO_URL } from '../data/mockData';
 
 interface HeaderProps {
@@ -113,12 +115,22 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => setLanguage(language === 'al' ? 'en' : 'al')}
-            className="h-8 px-2 rounded-md bg-surface-container-high hover:bg-surface-container-highest text-xs font-semibold flex items-center gap-1 transition-colors"
-            title="Toggle Shqip / English"
+            className="h-8 px-1 sm:px-1.5 rounded-md bg-surface-container-high hover:bg-surface-container-highest flex items-center gap-1 sm:gap-1.5 transition-colors"
+            title={language === 'al' ? 'Shqip → English' : 'English → Shqip'}
+            aria-label={language === 'al' ? 'Switch to English' : 'Kalo në Shqip'}
           >
-            <span className={language === 'al' ? 'text-primary font-bold' : 'text-outline'}>AL</span>
-            <span className="text-outline">/</span>
-            <span className={language === 'en' ? 'text-primary font-bold' : 'text-outline'}>EN</span>
+            <AL
+              title="Shqip"
+              className={`w-6 h-4 rounded-[3px] shadow-sm transition-all ${
+                language === 'al' ? 'ring-2 ring-primary' : 'opacity-40 grayscale-[60%]'
+              }`}
+            />
+            <US
+              title="English"
+              className={`w-6 h-4 rounded-[3px] shadow-sm transition-all ${
+                language === 'en' ? 'ring-2 ring-primary' : 'opacity-40 grayscale-[60%]'
+              }`}
+            />
           </button>
 
           {/* Quick Portal Switch / Demo Auth */}
