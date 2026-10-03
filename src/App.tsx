@@ -5,7 +5,6 @@ import { INITIAL_PATIENT, INITIAL_BIOMARKERS } from './data/mockData';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LabBiomarkersInput } from './components/LabBiomarkersInput';
-import { DeficiencyDiagrams } from './components/DeficiencyDiagrams';
 import { PharmacyFinder } from './components/PharmacyFinder';
 import { SafeShopping } from './components/SafeShopping';
 import { AuthModal } from './components/AuthModal';
@@ -98,19 +97,14 @@ export default function App() {
             setBiomarkers={setBiomarkers}
             patient={patient}
             language={language}
-            onNavigateToDiagrams={() => setActiveTab('diagrams')}
+            onGoToFoods={() => {
+              setActiveTab('shop');
+              setTimeout(() => document.getElementById('picked-for-you')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+            }}
+            labSource={labSource}
             onOpenConsultation={() => setIsConsultationOpen(true)}
             onNotification={showNotification}
             onReportLoaded={(r) => setLabSource({ fileName: r.fileName, date: r.sampleDate })}
-          />
-        )}
-
-        {activeTab === 'diagrams' && (
-          <DeficiencyDiagrams
-            biomarkers={biomarkers}
-            language={language}
-            onNavigateToPharmacies={() => setActiveTab('pharmacies')}
-            onOpenPrescriptions={() => setIsPrescriptionsOpen(true)}
           />
         )}
 

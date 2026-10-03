@@ -18,8 +18,7 @@ interface HeaderProps {
 
 const NAV_ITEMS: { tab: TabType; icon: string; al: string; en: string }[] = [
   { tab: 'shop', icon: 'grocery', al: 'Blerje me alergji', en: 'Allergy-safe shopping' },
-  { tab: 'input', icon: 'sync_alt', al: 'Regjistrimi i Analizave', en: 'Lab & Biomarkers Input' },
-  { tab: 'diagrams', icon: 'donut_large', al: 'Diagramet & Deficitet', en: 'Health Diagrams' },
+  { tab: 'input', icon: 'sync_alt', al: 'Analizat e gjakut', en: 'Blood test' },
   { tab: 'pharmacies', icon: 'local_pharmacy', al: 'Farmacitë e Prishtinës', en: 'Prishtina Pharmacy Finder' },
 ];
 
