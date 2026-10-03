@@ -92,6 +92,10 @@
   letter-spacing: normal;
   text-transform: none;
   display: inline-block;
+  /* Cap to one glyph so the ligature name (e.g. "local_pharmacy") can't
+     widen the layout before the icon font has loaded. */
+  width: 1em;
+  overflow: hidden;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
