@@ -1,0 +1,6 @@
+{
+  "name": "KosovaHealth",
+  "description": "KosovaHealth clinical telemetry, diagnostic lab parser, biomarker deficiency spectrum diagrams, and real-time Prishtina pharmacy inventory tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

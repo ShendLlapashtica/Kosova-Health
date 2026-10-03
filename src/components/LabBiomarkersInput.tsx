@@ -1,0 +1,1045 @@
+import React, { useState } from 'react';
+import { BiomarkerData, PatientProfile, Language } from '../types';
+import { BENCHMARK_NORMALS } from '../data/mockData';
+
+interface LabBiomarkersInputProps {
+  biomarkers: BiomarkerData;
+  setBiomarkers: React.Dispatch<React.SetStateAction<BiomarkerData>>;
+  patient: PatientProfile;
+  language: Language;
+  onNavigateToDiagrams: () => void;
+  onOpenConsultation: () => void;
+  onNotification: (msg: string) => void;
+}
+
+export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
+  biomarkers,
+  setBiomarkers,
+  patient,
+  language,
+  onNavigateToDiagrams,
+  onOpenConsultation,
+  onNotification,
+}) => {
+  const [activeTab, setActiveTab] = useState<'ocr' | 'csv' | 'manual'>('ocr');
+  const [activeBufferFileName, setActiveBufferFileName] = useState('Sample_Avicena_Prishtina_2024.pdf');
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
+
+  // Calculate BMI and status
+  const bmi = patient.weightKg / Math.pow(patient.heightCm / 100, 2);
+  const bmiCategory = bmi >= 30 ? 'Obese' : bmi >= 25 ? 'Overweight' : 'Normal';
+
+  // Count deficiencies
+  const isMgLow = biomarkers.mg < 1.7;
+  const isVitdLow = biomarkers.vitd < 30;
+  const isCaLow = biomarkers.ca < 8.5;
+  const isBpElevated = biomarkers.bpSys > 120 || biomarkers.bpDia > 80;
+
+  const deficienciesCount = [isMgLow, isVitdLow, isCaLow].filter(Boolean).length;
+
+  // Metabolic coefficient calculation (0-100)
+  const calcScore = () => {
+    let score = 100;
+    if (isMgLow) score -= 15;
+    if (isVitdLow) score -= 14;
+    if (isCaLow) score -= 8;
+    if (isBpElevated) score -= 6;
+    if (biomarkers.glu > 99) score -= 8;
+    return Math.max(30, Math.min(100, score));
+  };
+  const metabolicScore = calcScore();
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setActiveBufferFileName(file.name);
+      setIsProcessingFile(true);
+      setTimeout(() => {
+        setIsProcessingFile(false);
+        onNotification(
+          language === 'al'
+            ? `Raporti laboratorik "${file.name}" u skanua me sukses nga QKUK OCR Engine!`
+            : `Laboratory report "${file.name}" processed successfully via OCR Engine!`
+        );
+      }, 1000);
+    }
+  };
+
+  const handleLoadNormals = () => {
+    setBiomarkers(BENCHMARK_NORMALS);
+    onNotification(
+      language === 'al'
+        ? 'U ngarkuan vlerat standarde të referencës së Prishtinës (QKUK)!'
+        : 'Loaded Kosovo National Reference benchmark normal values!'
+    );
+  };
+
+  const handleDownloadCsv = () => {
+    const csvContent =
+      'PARAM_NAME,QUANT_VAL,UNIT_MEASURE,REF_LOW,REF_HIGH\n' +
+      `Magnesium,${biomarkers.mg},mg/dL,1.7,2.4\n` +
+      `Vitamin_D3,${biomarkers.vitd},ng/mL,30,100\n` +
+      `Calcium,${biomarkers.ca},mg/dL,8.5,10.2\n` +
+      `Fasting_Glucose,${biomarkers.glu},mg/dL,70,99\n` +
+      `Hemoglobin,${biomarkers.hgb},g/dL,13.5,17.5\n` +
+      `Ferritin,${biomarkers.ferritin},ng/mL,24,336\n` +
+      `TSH,${biomarkers.tsh},uIU/mL,0.4,4.0\n`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'KosovaHealth_Patient_Telemetry.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    onNotification('Standard KosovaHealth Template (.csv) downloaded.');
+  };
+
+  return (
+    <div className="flex flex-col w-full max-w-[1280px] mx-auto px-4 md:px-8 py-6 gap-6">
+      {/* Top Editorial Header & Trust Strip */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div className="max-w-2xl">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container mb-2 text-xs font-bold font-label-tag uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            {language === 'al'
+              ? 'Motori i Sinkronizimit të Biomarkerëve Klinikë'
+              : 'Clinical Biomarker Synchronization Engine'}
+          </div>
+          <h1 className="font-headline-lg text-2xl sm:text-3xl lg:text-4xl text-on-surface tracking-tight font-bold leading-tight">
+            {language === 'al'
+              ? 'Importo Analizat e Gjakut & Shenjat Vitale'
+              : 'Import Clinical Blood Work & Vitals'}
+          </h1>
+          <p className="text-sm sm:text-base text-on-surface-variant mt-1.5">
+            {language === 'al'
+              ? 'Sinkronizo rezultatet diagnostike nga laboratorët e certifikuar në Prishtinë ose regjistro manualisht parametrat fiziologjikë.'
+              : 'Synchronize diagnostic results from certified Prishtina laboratories or record manual physiological markers into the unified telemetry repository.'}
+          </p>
+        </div>
+
+        {/* Live Pipeline State / Quick Metrics */}
+        <div className="flex items-center gap-4 self-start lg:self-auto bg-surface-container-low px-4 py-2.5 rounded-xl border border-surface-container-high/60 shadow-sm">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+              {language === 'al' ? 'Gjendja e Motorit' : 'Engine State'}
+            </span>
+            <span className="text-xs font-mono font-bold text-primary flex items-center gap-1">
+              <span className="material-symbols-outlined text-[15px]">bolt</span>
+              {language === 'al' ? 'Gati për Parsing' : 'Ready for Parsing'}
+            </span>
+          </div>
+          <div className="w-px h-8 bg-surface-container-highest"></div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+              {language === 'al' ? 'Laboratorët e Mbështetur' : 'Supported Labs'}
+            </span>
+            <span className="text-xs font-bold text-on-surface">QKUK • Olive • Avicena</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Patient Profile & Biometrics Banner */}
+      <div className="rounded-xl bg-surface-container-lowest p-4 sm:p-5 shadow-sm border border-surface-container-high/60 flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-[22px]">badge</span>
+            <h2 className="text-sm sm:text-base font-bold text-on-surface">
+              {patient.name} — Clinical Profile & Biometrics
+            </h2>
+            <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold uppercase">
+              {language === 'al' ? 'Pacient i Verifikuar' : 'Verified Patient'}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenConsultation}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-colors shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[16px]">video_call</span>
+            <span>{language === 'al' ? 'Konsultohu me Dr. Krasniqin' : 'Consult Dr. Krasniqi'}</span>
+          </button>
+        </div>
+
+        {/* Biometrics Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
+          <div className="p-2.5 rounded-lg bg-surface-container-low">
+            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
+              {language === 'al' ? 'Mosha / Age' : 'Age'}
+            </span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-on-surface">
+              {patient.age} vjeç
+            </span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-surface-container-low">
+            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
+              {language === 'al' ? 'Gjatësia / Height' : 'Height'}
+            </span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-on-surface">
+              {patient.heightCm} cm
+            </span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-surface-container-low">
+            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
+              {language === 'al' ? 'Pesha / Weight' : 'Weight'}
+            </span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-on-surface">
+              {patient.weightKg} kg
+            </span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-surface-container-low">
+            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
+              {language === 'al' ? 'BMI / Indeksi' : 'BMI'}
+            </span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-error">
+              {bmi.toFixed(1)} kg/m²
+            </span>
+            <span className="block text-[10px] text-error font-medium">{bmiCategory}</span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-surface-container-low">
+            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
+              {language === 'al' ? 'Tensioni / BP' : 'Blood Pressure'}
+            </span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-outline">
+              {biomarkers.bpSys}/{biomarkers.bpDia} mmHg
+            </span>
+            <span className="block text-[10px] text-outline font-medium">Elevated Stage 1</span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-surface-container-low">
+            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
+              {language === 'al' ? 'Pulsi / Pulse' : 'Pulse'}
+            </span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-secondary">
+              {biomarkers.pulse} bpm
+            </span>
+            <span className="block text-[10px] text-secondary font-medium">Normocardia</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Privacy Banner */}
+      <div className="relative overflow-hidden rounded-xl bg-surface-container-low p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border border-surface-container-high/40">
+        <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-primary-fixed/20 blur-2xl pointer-events-none"></div>
+        <div className="flex items-center gap-3.5 relative z-10">
+          <div className="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
+            <span className="material-symbols-outlined text-[22px]">verified_user</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-on-surface">
+                {language === 'al' ? 'Privatësia e të Dhënave Mjekësore e Garantuar' : 'Medical Data Privacy Guaranteed'}
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px] font-bold">
+                LAW NO. 04/L-125
+              </span>
+            </div>
+            <p className="text-xs text-on-surface-variant mt-0.5">
+              {language === 'al'
+                ? 'Përpunim biometrik me enkriptim end-to-end sipas rregulloreve të Kosovës dhe telemetrisë së standardeve GDPR të BE-së.'
+                : 'End-to-end encrypted biometric processing under strict Kosova Health Confidentiality regulations and European GDPR standard telemetry.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 relative z-10">
+          <span className="inline-flex items-center gap-1 font-mono text-secondary text-xs font-semibold bg-surface-container-lowest px-2.5 py-1 rounded-md">
+            <span className="material-symbols-outlined text-[15px]">lock</span> TLS 1.3 / AES-256
+          </span>
+        </div>
+      </div>
+
+      {/* Main Workspace Split: Intake Modes (Left 8 cols) & Realtime Telemetry Summary (Right 4 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Primary Intake Section (8 cols) */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
+          {/* Mode Tabs */}
+          <div className="bg-surface-container-low p-1 rounded-xl flex items-center gap-1 border border-surface-container-high/60 overflow-x-auto">
+            <button
+              type="button"
+              onClick={() => setActiveTab('ocr')}
+              className={`flex-1 min-w-[160px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'ocr'
+                  ? 'text-on-primary bg-primary shadow-sm'
+                  : 'text-on-surface-variant hover:bg-surface-container-high'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">document_scanner</span>
+              <span>{language === 'al' ? 'PDF & OCR Skaner' : 'PDF & OCR Scan'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('csv')}
+              className={`flex-1 min-w-[160px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'csv'
+                  ? 'text-on-primary bg-primary shadow-sm'
+                  : 'text-on-surface-variant hover:bg-surface-container-high'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">table_chart</span>
+              <span>{language === 'al' ? 'CSV / Spreadsheet' : 'CSV / Spreadsheet'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('manual')}
+              className={`flex-1 min-w-[160px] py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'manual'
+                  ? 'text-on-primary bg-primary shadow-sm'
+                  : 'text-on-surface-variant hover:bg-surface-container-high'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">edit_note</span>
+              <span>{language === 'al' ? 'Formulari Manual' : 'Manual Formular'}</span>
+            </button>
+          </div>
+
+          {/* Mode 1: PDF / OCR Optical Scanner */}
+          {activeTab === 'ocr' && (
+            <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+              <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container-high/60 flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                  <div>
+                    <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
+                      {language === 'al' ? 'NJOHJE OPTIKE E AUTOMATIZUAR' : 'AUTOMATED OPTICAL RECOGNITION'}
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-on-surface mt-0.5">
+                      {language === 'al' ? 'Ngarko Raportin Laboratorik në PDF' : 'Upload Laboratory Report PDF'}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-on-surface-variant">
+                      {language === 'al'
+                        ? 'Nxjerrje e menjëhershme e parametrave e kalibruar për laboratorët në Kosovë.'
+                        : 'Instant parameter extraction calibrated for certified labs in Kosovo.'}
+                    </p>
+                  </div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-xs text-on-surface-variant font-medium">
+                      Olive Medical
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-xs text-on-surface-variant font-medium">
+                      Avicena KS
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-xs text-on-surface-variant font-medium">
+                      Euromed
+                    </span>
+                  </div>
+                </div>
+
+                {/* Drag & Drop Zone */}
+                <div className="relative group cursor-pointer rounded-xl bg-surface-container-low/60 hover:bg-surface-container-high/60 transition-all p-8 flex flex-col items-center justify-center text-center border-2 border-dashed border-outline-variant hover:border-primary">
+                  <input
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                  />
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-[32px]">cloud_upload</span>
+                  </div>
+                  <p className="text-sm sm:text-base font-bold text-on-surface">
+                    {language === 'al'
+                      ? 'Lësho raportin laboratorik ose kliko për të shfletuar'
+                      : 'Drop clinical lab report or click to browse'}
+                  </p>
+                  <p className="text-xs text-on-surface-variant mt-1">
+                    Multi-page standard vector PDF or scanned 300+ DPI images
+                  </p>
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                    <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface-variant font-medium shadow-xs">
+                      <span className="material-symbols-outlined text-[13px] text-primary">check_circle</span>
+                      QKUK Formats
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface-variant font-medium shadow-xs">
+                      <span className="material-symbols-outlined text-[13px] text-primary">check_circle</span>
+                      Biomarker Parsing
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface-variant font-medium shadow-xs">
+                      <span className="material-symbols-outlined text-[13px] text-primary">check_circle</span>
+                      Reference Gauge Auto-Mapping
+                    </span>
+                  </div>
+                </div>
+
+                {/* Extraction Preview Reel */}
+                <div className="bg-surface-container-low rounded-xl p-4 flex flex-col gap-2.5 border border-surface-container-high/40">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-[18px]">
+                        document_scanner
+                      </span>
+                      <span className="text-xs sm:text-sm font-bold text-on-surface">
+                        {language === 'al' ? 'Buffer Aktiv i Ekstraktimeve OCR' : 'Active OCR Extraction Buffer'}
+                      </span>
+                    </div>
+                    <span className="font-mono text-xs text-primary font-bold">
+                      {isProcessingFile ? 'Skanimi në ecuri...' : activeBufferFileName}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+                    <div className="bg-surface-container-lowest p-3 rounded-lg flex items-center justify-between shadow-xs">
+                      <div>
+                        <span className="text-xs text-on-surface-variant block">Magnesium (Mg)</span>
+                        <span className="font-mono text-sm text-error font-bold">{biomarkers.mg} mg/dL</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[10px] font-bold">
+                        Low • 98% conf
+                      </span>
+                    </div>
+
+                    <div className="bg-surface-container-lowest p-3 rounded-lg flex items-center justify-between shadow-xs">
+                      <div>
+                        <span className="text-xs text-on-surface-variant block">25-OH Vitamin D3</span>
+                        <span className="font-mono text-sm text-error font-bold">{biomarkers.vitd} ng/mL</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[10px] font-bold">
+                        Deficient
+                      </span>
+                    </div>
+
+                    <div className="bg-surface-container-lowest p-3 rounded-lg flex items-center justify-between shadow-xs">
+                      <div>
+                        <span className="text-xs text-on-surface-variant block">Fasting Glucose</span>
+                        <span className="font-mono text-sm text-primary font-bold">{biomarkers.glu} mg/dL</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">
+                        Optimal
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Mode 2: CSV / Excel Importer */}
+          {activeTab === 'csv' && (
+            <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+              <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container-high/60 flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div>
+                    <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
+                      {language === 'al' ? 'INGJESTION I TABELAVE TË TË DHËNAVE' : 'TABULAR DATASET INGESTION'}
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-on-surface mt-0.5">
+                      {language === 'al' ? 'Importues i Skedarëve CSV / Excel' : 'Bulk CSV / Excel Lab Importer'}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-on-surface-variant">
+                      Exported panels from LIS (Laboratory Information System) or manual spreadsheets.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleDownloadCsv}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-on-surface text-xs font-semibold hover:bg-surface-container-high transition-colors shadow-xs self-start"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">download</span>
+                    <span>Standard KosovaHealth Template (.csv)</span>
+                  </button>
+                </div>
+
+                <div className="rounded-xl bg-surface-container-low/70 p-6 flex flex-col items-center justify-center text-center border border-dashed border-outline-variant">
+                  <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary mb-2">
+                    <span className="material-symbols-outlined text-[24px]">file_present</span>
+                  </div>
+                  <p className="text-sm font-bold text-on-surface">
+                    Drop .CSV or .XLSX telemetry data
+                  </p>
+                  <p className="text-xs text-on-surface-variant mt-1">
+                    Automatic header-matching for: Biomarker, Value, Unit, Reference_Low, Reference_High
+                  </p>
+                  <div className="mt-4 flex gap-2">
+                    <label className="px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-bold hover:bg-primary-container transition-colors cursor-pointer">
+                      Select Local Spreadsheet
+                      <input type="file" accept=".csv,.xlsx" onChange={handleFileUpload} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Schema validation preview table */}
+                <div className="bg-surface-container-low rounded-xl p-4 border border-surface-container-high/40">
+                  <span className="text-xs font-bold text-on-surface block mb-2">
+                    Intelligent Column Schema Validation
+                  </span>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="text-on-surface-variant uppercase text-[10px] font-bold border-b border-surface-container-high pb-1">
+                          <th className="py-1.5">Detected Column</th>
+                          <th className="py-1.5">KosovaHealth Field</th>
+                          <th className="py-1.5">Confidence</th>
+                          <th className="py-1.5">Preview Row 1</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-surface-container text-on-surface">
+                        <tr className="bg-surface-container-lowest/80">
+                          <td className="py-2 font-mono">PARAM_NAME</td>
+                          <td className="py-2 font-semibold text-primary">Biomarker Key</td>
+                          <td className="py-2 text-secondary font-semibold">100% (Exact)</td>
+                          <td className="py-2 text-on-surface-variant">Serum Ferritin</td>
+                        </tr>
+                        <tr className="bg-surface-container-lowest/50">
+                          <td className="py-2 font-mono">QUANT_VAL</td>
+                          <td className="py-2 font-semibold text-primary">Numeric Value</td>
+                          <td className="py-2 text-secondary font-semibold">96% (Fuzzy)</td>
+                          <td className="py-2 text-on-surface-variant">{biomarkers.ferritin}</td>
+                        </tr>
+                        <tr className="bg-surface-container-lowest/80">
+                          <td className="py-2 font-mono">UNIT_MEASURE</td>
+                          <td className="py-2 font-semibold text-primary">Standard Unit</td>
+                          <td className="py-2 text-secondary font-semibold">100% (Exact)</td>
+                          <td className="py-2 text-on-surface-variant">ng/mL</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Mode 3: Manual Interactive Formular */}
+          {activeTab === 'manual' && (
+            <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+              <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-container-high/60 flex flex-col gap-5">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
+                      {language === 'al' ? 'REGJISTRIM DIREKT KLINIK' : 'CLINICAL DIRECT ENTRY'}
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-on-surface mt-0.5">
+                      {language === 'al' ? 'Protokolli i Biomarkerëve & Shenjave Vitale' : 'Biomarker & Vital Signs Protocol'}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-on-surface-variant">
+                      Type parameters directly from your paper laboratory slip.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleLoadNormals}
+                    className="px-3.5 py-1.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest text-xs font-semibold transition-colors self-start md:self-auto"
+                  >
+                    {language === 'al' ? 'Ngarko Vlerat Normale të Prishtinës' : 'Load Standard Benchmark Values'}
+                  </button>
+                </div>
+
+                {/* Electrolytes & Micronutrients */}
+                <div>
+                  <h3 className="text-sm font-bold text-on-surface mb-2.5 flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                    Electrolytes & Micronutrients
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {/* Magnesium */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">Magnesium (Mg)</label>
+                        <span className="text-[10px] text-on-surface-variant">1.7 - 2.4 mg/dL</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={biomarkers.mg}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, mg: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">mg/dL</span>
+                      </div>
+                      <span className={`text-[10px] font-bold ${biomarkers.mg < 1.7 ? 'text-error' : 'text-secondary'}`}>
+                        {biomarkers.mg < 1.7 ? 'Below optimal range (Hypomagnesemia)' : 'Optimal level'}
+                      </span>
+                    </div>
+
+                    {/* Calcium */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">Calcium (Ca2+)</label>
+                        <span className="text-[10px] text-on-surface-variant">8.5 - 10.2 mg/dL</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={biomarkers.ca}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, ca: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">mg/dL</span>
+                      </div>
+                      <span className={`text-[10px] font-bold ${biomarkers.ca < 8.5 ? 'text-error' : 'text-secondary'}`}>
+                        {biomarkers.ca < 8.5 ? 'Mild Hypocalcemia' : 'Optimal physiologic level'}
+                      </span>
+                    </div>
+
+                    {/* 25-OH Vitamin D3 */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">25-OH Vit D3</label>
+                        <span className="text-[10px] text-on-surface-variant">30 - 100 ng/mL</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="1"
+                          value={biomarkers.vitd}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, vitd: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">ng/mL</span>
+                      </div>
+                      <span className={`text-[10px] font-bold ${biomarkers.vitd < 30 ? 'text-error' : 'text-secondary'}`}>
+                        {biomarkers.vitd < 30 ? 'Deficiency indicated' : 'Sufficient pool'}
+                      </span>
+                    </div>
+
+                    {/* Vitamin B12 */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">Vitamin B12</label>
+                        <span className="text-[10px] text-on-surface-variant">200 - 900 pg/mL</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="10"
+                          value={biomarkers.b12}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, b12: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">pg/mL</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-secondary">Sufficient cellular pool</span>
+                    </div>
+
+                    {/* Ferritin */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">Ferritin</label>
+                        <span className="text-[10px] text-on-surface-variant">24 - 336 ng/mL</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="1"
+                          value={biomarkers.ferritin}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, ferritin: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">ng/mL</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-outline">Borderline iron storage</span>
+                    </div>
+
+                    {/* Hemoglobin */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">Hemoglobin</label>
+                        <span className="text-[10px] text-on-surface-variant">13.5 - 17.5 g/dL</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={biomarkers.hgb}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, hgb: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">g/dL</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-secondary">Optimal oxygen affinity</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Endocrine & Vitals */}
+                <div>
+                  <h3 className="text-sm font-bold text-on-surface mb-2.5 flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+                    Endocrine, Glycemic & Hemodynamics
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    {/* Glucose */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">Fasting Glucose</label>
+                        <span className="text-[10px] text-on-surface-variant">70 - 99 mg/dL</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="1"
+                          value={biomarkers.glu}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, glu: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">mg/dL</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-secondary">Euglycemic</span>
+                    </div>
+
+                    {/* TSH */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">Thyroid TSH</label>
+                        <span className="text-[10px] text-on-surface-variant">0.4 - 4.0 μIU/mL</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.05"
+                          value={biomarkers.tsh}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, tsh: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">μIU/mL</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-secondary">Euthyroid state</span>
+                    </div>
+
+                    {/* Blood Pressure Dual */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">BP (Sys / Dia)</label>
+                        <span className="text-[10px] text-on-surface-variant">&lt; 120/80</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <input
+                          type="number"
+                          value={biomarkers.bpSys}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, bpSys: parseInt(e.target.value) || 120 })}
+                          placeholder="Sys"
+                          className="w-full bg-surface-container-lowest rounded-lg px-2 py-2 text-center text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <input
+                          type="number"
+                          value={biomarkers.bpDia}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, bpDia: parseInt(e.target.value) || 80 })}
+                          placeholder="Dia"
+                          className="w-full bg-surface-container-lowest rounded-lg px-2 py-2 text-center text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                      </div>
+                      <span className="text-[10px] font-bold text-outline">Pre-hypertension</span>
+                    </div>
+
+                    {/* Pulse */}
+                    <div className="bg-surface-container-low p-3 rounded-xl flex flex-col gap-1 border border-surface-container-high/50">
+                      <div className="flex justify-between items-center text-xs">
+                        <label className="font-bold text-on-surface">Resting Pulse</label>
+                        <span className="text-[10px] text-on-surface-variant">60 - 100 bpm</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="1"
+                          value={biomarkers.pulse}
+                          onChange={(e) => setBiomarkers({ ...biomarkers, pulse: parseInt(e.target.value) || 72 })}
+                          className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-2 text-xs text-on-surface-variant">bpm</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-secondary">Normocardia</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Regional Reference Strip */}
+          <div className="bg-surface-container-low rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 border border-surface-container-high/40">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-secondary text-[24px]">local_hospital</span>
+              <div>
+                <span className="font-bold text-xs sm:text-sm text-on-surface block leading-snug">
+                  Kosovo National Reference Framework
+                </span>
+                <span className="text-xs text-on-surface-variant">
+                  Calibrated against clinical reference intervals provided by QKUK Central Laboratory standards.
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface text-[10px] font-bold uppercase shadow-xs">
+                Prishtina District
+              </span>
+              <span className="px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase">
+                ISO 15189 Ready
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Parser Telemetry & Deficiency Summary (Right 4 cols) */}
+        <div className="lg:col-span-4 flex flex-col gap-4 sticky top-20">
+          <div className="bg-surface-container-lowest p-5 rounded-xl shadow-md border border-surface-container-high/60 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
+                <h2 className="text-base sm:text-lg font-bold text-on-surface">
+                  {language === 'al' ? 'Përmbledhja e Parserit Live' : 'Live Parser Summary'}
+                </h2>
+              </div>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed">
+                10 Biomarkers
+              </span>
+            </div>
+
+            <p className="text-xs text-on-surface-variant">
+              Aggregated diagnostic parameters ready to compile into the clinical metabolic deficit matrix.
+            </p>
+
+            {/* Alert Box */}
+            <div className="p-3.5 rounded-xl bg-error-container/40 border border-error/20 flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-error font-bold text-xs">
+                <span className="material-symbols-outlined text-[18px]">warning</span>
+                <span>
+                  {deficienciesCount} {language === 'al' ? 'Deficite të Identifikuara' : 'Deficiencies Detected'}
+                </span>
+              </div>
+              <p className="text-[11px] text-on-surface-variant leading-relaxed">
+                {isMgLow && isVitdLow
+                  ? 'Hypomagnesemia and severe Vitamin D hypovitaminosis observed. These seed targeted intervention protocols in Prishtina pharmacies.'
+                  : 'Active biometric monitoring in effect with continuous sync.'}
+              </p>
+            </div>
+
+            {/* Parsed Telemetry Table Rows */}
+            <div className="flex flex-col gap-1 divide-y divide-surface-container-high/60 text-xs">
+              {/* Mg */}
+              <div className="py-1.5 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-on-surface">Magnesium Serum</span>
+                  <span className="text-[10px] text-on-surface-variant">Ref: 1.7 - 2.4 mg/dL</span>
+                </div>
+                <div className="text-right">
+                  <span className={`font-mono font-bold ${isMgLow ? 'text-error' : 'text-secondary'}`}>
+                    {biomarkers.mg} mg/dL
+                  </span>
+                  <span className={`block text-[10px] font-bold uppercase ${isMgLow ? 'text-error' : 'text-secondary'}`}>
+                    {isMgLow ? 'Low • Critical' : 'Optimal'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Vit D */}
+              <div className="py-1.5 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-on-surface">25-OH Vitamin D3</span>
+                  <span className="text-[10px] text-on-surface-variant">Ref: 30 - 100 ng/mL</span>
+                </div>
+                <div className="text-right">
+                  <span className={`font-mono font-bold ${isVitdLow ? 'text-error' : 'text-secondary'}`}>
+                    {biomarkers.vitd} ng/mL
+                  </span>
+                  <span className={`block text-[10px] font-bold uppercase ${isVitdLow ? 'text-error' : 'text-secondary'}`}>
+                    {isVitdLow ? 'Deficient' : 'Optimal'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Blood Pressure */}
+              <div className="py-1.5 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-on-surface">Blood Pressure</span>
+                  <span className="text-[10px] text-on-surface-variant">Standard &lt; 120/80</span>
+                </div>
+                <div className="text-right">
+                  <span className="font-mono font-bold text-on-surface">
+                    {biomarkers.bpSys} / {biomarkers.bpDia}
+                  </span>
+                  <span className="block text-[10px] font-bold text-outline uppercase">
+                    {isBpElevated ? 'Elevated Stage 1' : 'Normal'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Pulse */}
+              <div className="py-1.5 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-on-surface">Resting Heart Rate</span>
+                  <span className="text-[10px] text-on-surface-variant">Optimal 60 - 100 bpm</span>
+                </div>
+                <div className="text-right">
+                  <span className="font-mono font-bold text-secondary">{biomarkers.pulse} bpm</span>
+                  <span className="block text-[10px] font-bold text-secondary uppercase">Optimal</span>
+                </div>
+              </div>
+
+              {/* Calcium */}
+              <div className="py-1.5 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-on-surface">Serum Calcium (Ca2+)</span>
+                  <span className="text-[10px] text-on-surface-variant">Ref: 8.5 - 10.2 mg/dL</span>
+                </div>
+                <div className="text-right">
+                  <span className={`font-mono font-bold ${isCaLow ? 'text-error' : 'text-secondary'}`}>
+                    {biomarkers.ca} mg/dL
+                  </span>
+                  <span className={`block text-[10px] font-bold uppercase ${isCaLow ? 'text-error' : 'text-secondary'}`}>
+                    {isCaLow ? 'Borderline' : 'Balanced'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Glucose */}
+              <div className="py-1.5 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-on-surface">Fasting Glucose</span>
+                  <span className="text-[10px] text-on-surface-variant">Ref: 70 - 99 mg/dL</span>
+                </div>
+                <div className="text-right">
+                  <span className="font-mono font-bold text-secondary">{biomarkers.glu} mg/dL</span>
+                  <span className="block text-[10px] font-bold text-secondary uppercase">Optimal</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Micro 8-Axis Radar Diagram */}
+            <div className="p-3 rounded-xl bg-surface-container-low flex flex-col gap-2 border border-surface-container-high/40">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-primary text-[18px]">hub</span>
+                  <span>8-Axis Radar KG Diagram</span>
+                </span>
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${deficienciesCount > 0 ? 'bg-error-container text-on-error-container' : 'bg-secondary-container text-on-secondary-container'}`}>
+                  {deficienciesCount} Alerts
+                </span>
+              </div>
+
+              <div className="relative w-full aspect-square max-w-[220px] mx-auto">
+                <svg className="w-full h-full" viewBox="0 0 200 200">
+                  {/* Outer & inner guide rings */}
+                  <polygon points="100,18 158,42 182,100 158,158 100,182 42,158 18,100 42,42" fill="none" stroke="#bcc9c6" strokeWidth="1" strokeDasharray="3,3" />
+                  <polygon points="100,45 139,61 155,100 139,139 100,155 61,139 45,100 61,61" fill="none" stroke="#bcc9c6" strokeWidth="1" />
+                  <polygon points="100,68 126,80 132,100 126,126 100,132 74,126 68,100 74,74" fill="none" stroke="#bcc9c6" strokeWidth="1" />
+                  {/* Axis lines */}
+                  <line x1="100" y1="100" x2="100" y2="18" stroke="#bcc9c6" strokeWidth="1" />
+                  <line x1="100" y1="100" x2="182" y2="100" stroke="#bcc9c6" strokeWidth="1" />
+                  <line x1="100" y1="100" x2="100" y2="182" stroke="#bcc9c6" strokeWidth="1" />
+                  <line x1="100" y1="100" x2="18" y2="100" stroke="#bcc9c6" strokeWidth="1" />
+
+                  {/* Dynamic patient profile polygon */}
+                  <polygon
+                    points={`100,${isMgLow ? 40 : 25} 148,58 ${isVitdLow ? 148 : 165},100 135,135 100,148 50,150 48,100 70,55`}
+                    fill="rgba(0,104,95,0.25)"
+                    stroke="#00685f"
+                    strokeWidth="2"
+                  />
+
+                  {/* Mg Marker */}
+                  <circle cx="100" cy={isMgLow ? 40 : 25} r={isMgLow ? 5 : 3.5} fill={isMgLow ? '#ba1a1a' : '#006b5f'} />
+                  <text x="100" y={isMgLow ? 32 : 18} fontSize="9" textAnchor="middle" fill={isMgLow ? '#ba1a1a' : '#00685f'} fontWeight="bold">
+                    Mg ({biomarkers.mg})
+                  </text>
+
+                  {/* Ca Marker */}
+                  <circle cx="148" cy="58" r="3.5" fill="#006b5f" />
+                  <text x="165" y="58" fontSize="8" textAnchor="start" fill="#3d4947">Ca ({biomarkers.ca})</text>
+
+                  {/* Vit D Marker */}
+                  <circle cx={isVitdLow ? 148 : 165} cy="100" r={isVitdLow ? 5 : 3.5} fill={isVitdLow ? '#ba1a1a' : '#006b5f'} />
+                  <text x="160" y="104" fontSize="9" textAnchor="start" fill={isVitdLow ? '#ba1a1a' : '#00685f'} fontWeight="bold">
+                    Vit D ({biomarkers.vitd})
+                  </text>
+
+                  {/* B12 Marker */}
+                  <circle cx="135" cy="135" r="3.5" fill="#006b5f" />
+                  <text x="145" y="145" fontSize="8" textAnchor="start" fill="#3d4947">B12 ({biomarkers.b12})</text>
+
+                  {/* Glucose Marker */}
+                  <circle cx="100" cy="148" r="3.5" fill="#00685f" />
+                  <text x="100" y="162" fontSize="8" textAnchor="middle" fill="#3d4947">Glu ({biomarkers.glu})</text>
+
+                  {/* BP Marker */}
+                  <circle cx="50" cy="150" r="3.5" fill="#6d7a77" />
+                  <text x="38" y="162" fontSize="8" textAnchor="end" fill="#6d7a77">BP ({biomarkers.bpSys}/{biomarkers.bpDia})</text>
+
+                  {/* Pulse Marker */}
+                  <circle cx="48" cy="100" r="3.5" fill="#006b5f" />
+                  <text x="12" y="104" fontSize="8" textAnchor="end" fill="#3d4947">Pulse ({biomarkers.pulse})</text>
+
+                  {/* Ferritin Marker */}
+                  <circle cx="70" cy="55" r="3.5" fill="#006b5f" />
+                  <text x="48" y="48" fontSize="8" textAnchor="end" fill="#3d4947">Ferritin ({biomarkers.ferritin})</text>
+                </svg>
+              </div>
+
+              <div className="flex justify-between items-center text-[10px] text-on-surface-variant font-mono">
+                <span className={isMgLow ? 'text-error font-bold' : ''}>
+                  Hypomagnesemia: {biomarkers.mg} mg/dL
+                </span>
+                <span className={isVitdLow ? 'text-error font-bold' : ''}>
+                  Vit D: {biomarkers.vitd} ng/mL
+                </span>
+              </div>
+            </div>
+
+            {/* Metabolic Integrity Coefficient */}
+            <div className="bg-surface-container-low rounded-xl p-3 flex flex-col gap-1 border border-surface-container-high/40">
+              <div className="flex justify-between items-center text-on-surface-variant text-[11px] font-bold">
+                <span>METABOLIC INTEGRITY COEFFICIENT</span>
+                <span className="font-mono text-primary font-bold">{metabolicScore.toFixed(1)} / 100</span>
+              </div>
+              <div className="h-8 w-full flex items-end gap-1.5 pt-1">
+                <div className={`w-1/6 rounded-t-sm ${isMgLow ? 'bg-error h-[35%]' : 'bg-primary h-[85%]'}`} title="Magnesium"></div>
+                <div className={`w-1/6 rounded-t-sm ${isCaLow ? 'bg-error h-[45%]' : 'bg-secondary h-[88%]'}`} title="Calcium"></div>
+                <div className={`w-1/6 rounded-t-sm ${isVitdLow ? 'bg-error h-[28%]' : 'bg-primary h-[90%]'}`} title="Vitamin D"></div>
+                <div className="w-1/6 bg-secondary h-[92%] rounded-t-sm" title="Vitamin B12"></div>
+                <div className="w-1/6 bg-primary h-[80%] rounded-t-sm" title="Glucose"></div>
+                <div className={`w-1/6 rounded-t-sm ${isBpElevated ? 'bg-outline h-[60%]' : 'bg-secondary h-[85%]'}`} title="Blood Pressure"></div>
+              </div>
+            </div>
+
+            {/* Primary CTA */}
+            <button
+              type="button"
+              onClick={onNavigateToDiagrams}
+              className="w-full py-3 px-4 rounded-xl bg-primary text-on-primary font-bold text-xs sm:text-sm hover:bg-primary-container active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-2 group"
+            >
+              <span>{language === 'al' ? 'Analizo Biomarkerët & Gjenero Diagramin' : 'Analyze Biomarkers & Generate Deficiencies Diagram'}</span>
+              <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
+                arrow_forward
+              </span>
+            </button>
+
+            <div className="flex items-center justify-center gap-1.5 text-on-surface-variant text-xs">
+              <span className="material-symbols-outlined text-[15px] text-secondary">sync</span>
+              <span>Instantly feeds into interactive Deficiency Topology Map</span>
+            </div>
+          </div>
+
+          {/* Pharmacy Quick Hook */}
+          <div className="bg-surface-container-low p-4 rounded-xl flex flex-col gap-2 border border-surface-container-high/40">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-[20px]">local_pharmacy</span>
+                <div>
+                  <span className="text-xs font-bold text-on-surface leading-none block">
+                    Prishtina 8-Pharmacy Network
+                  </span>
+                  <span className="text-[11px] text-on-surface-variant">Sourcing Mg Glycinate & D3 50,000 IU</span>
+                </div>
+              </div>
+              <span className="font-mono text-xs text-primary font-bold">8 Active</span>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[11px] text-on-surface-variant">
+              <span className="px-2 py-1 rounded bg-surface-container-lowest">• Barnatorja Qendrore</span>
+              <span className="px-2 py-1 rounded bg-surface-container-lowest">• Rexall Dardania</span>
+              <span className="px-2 py-1 rounded bg-surface-container-lowest">• Farmacia Ulpiana</span>
+              <span className="px-2 py-1 rounded bg-surface-container-lowest">• QKUK Dispensary</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
