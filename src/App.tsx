@@ -1,20 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { LabSource } from './components/PickedForYou';
 import { TabType, Language, BiomarkerData, PatientProfile } from './types';
 import { INITIAL_PATIENT, INITIAL_BIOMARKERS } from './data/mockData';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LabBiomarkersInput } from './components/LabBiomarkersInput';
-import { DeficiencyDiagrams } from './components/DeficiencyDiagrams';
 import { PharmacyFinder } from './components/PharmacyFinder';
+import { SafeShopping } from './components/SafeShopping';
 import { AuthModal } from './components/AuthModal';
 import { ConsultationModal } from './components/ConsultationModal';
 import { PrescriptionDrawer } from './components/PrescriptionDrawer';
 
+const load = <T,>(k: string, fallback: T): T => {
+  try {
+    const v = localStorage.getItem(k);
+    return v ? (JSON.parse(v) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+const save = (k: string, v: unknown) => {
+  try {
+    localStorage.setItem(k, JSON.stringify(v));
+  } catch {
+    /* storage unavailable — state still works for this visit */
+  }
+};
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('input');
+  const [activeTab, setActiveTab] = useState<TabType>('shop');
   const [language, setLanguage] = useState<Language>('al');
   const [patient, setPatient] = useState<PatientProfile>(INITIAL_PATIENT);
-  const [biomarkers, setBiomarkers] = useState<BiomarkerData>(INITIAL_BIOMARKERS);
+  const [biomarkers, setBiomarkers] = useState<BiomarkerData>(() => load('kh.biomarkers', INITIAL_BIOMARKERS));
+  const [labSource, setLabSource] = useState<LabSource | null>(() => load('kh.labSource', null));
+  useEffect(() => save('kh.biomarkers', biomarkers), [biomarkers]);
+  useEffect(() => save('kh.labSource', labSource), [labSource]);
 
   // Modals state
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -60,24 +80,31 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="w-full pt-20 flex-1">
+        {activeTab === 'shop' && (
+          <SafeShopping
+            language={language}
+            onNotification={showNotification}
+            biomarkers={biomarkers}
+            setBiomarkers={setBiomarkers}
+            labSource={labSource}
+            setLabSource={setLabSource}
+          />
+        )}
+
         {activeTab === 'input' && (
           <LabBiomarkersInput
             biomarkers={biomarkers}
             setBiomarkers={setBiomarkers}
             patient={patient}
             language={language}
-            onNavigateToDiagrams={() => setActiveTab('diagrams')}
+            onGoToFoods={() => {
+              setActiveTab('shop');
+              setTimeout(() => document.getElementById('picked-for-you')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+            }}
+            labSource={labSource}
             onOpenConsultation={() => setIsConsultationOpen(true)}
             onNotification={showNotification}
-          />
-        )}
-
-        {activeTab === 'diagrams' && (
-          <DeficiencyDiagrams
-            biomarkers={biomarkers}
-            language={language}
-            onNavigateToPharmacies={() => setActiveTab('pharmacies')}
-            onOpenPrescriptions={() => setIsPrescriptionsOpen(true)}
+            onReportLoaded={(r) => setLabSource({ fileName: r.fileName, date: r.sampleDate })}
           />
         )}
 

@@ -15,8 +15,8 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
           </span>
           <span className="text-outline">
             {language === 'al'
-              ? '© 2025 Platforma Kombëtare e Analitikës Shëndetësore & Regjistri i Barnatoreve. Prishtinë, Kosovë.'
-              : '© 2025 Kosovo Health Analytics & Laboratory Registry. Prishtinë, Republic of Kosovo.'}
+              ? '© 2026 Platforma Kombëtare e Analitikës Shëndetësore & Regjistri i Barnatoreve. Prishtinë, Kosovë.'
+              : '© 2026 Kosovo Health Analytics & Laboratory Registry. Prishtinë, Republic of Kosovo.'}
           </span>
         </div>
 

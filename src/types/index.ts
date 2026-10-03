@@ -1,4 +1,4 @@
-export type TabType = 'dashboard' | 'input' | 'diagrams' | 'pharmacies' | 'prescriptions' | 'auth';
+export type TabType = 'shop' | 'dashboard' | 'input' | 'diagrams' | 'pharmacies' | 'prescriptions' | 'auth';
 
 export type Language = 'al' | 'en';
 

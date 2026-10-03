@@ -327,7 +327,7 @@ export const PRESCRIPTION_ITEMS: PrescriptionItem[] = [
   { id: 20, name: 'Electrolyte Rehydration Salts', dosage: '10 Sachets', indication: 'WHO Formulation Rehydration', quantity: '1 box', price: 3.50, inStock: true },
 ];
 
-export const LOGO_URL = 'https://lh3.googleusercontent.com/aida/AEtjO1X7-e7FjiyftjRd8wTg3eaLApRy-sNFqxHRRQGzWhVg7HDyY-q7-EE4a1O9WxWoSWQmZ0t_EEA7PAQlF3uEQ1IUJPNRr0NxiEhOhNQOSbUbbOltdv5LsJUNocT2_qB77PvZc2_qRfdBZeRiMvIPH9AzOoM0cdYZOeJxSciT_-M-OjR0gNh1De-06D9uoeDlXJyij40w3eyxrtOnNjv6Zrspet2sEy1wChF2fgrfwelC7toMq_7cnVXc3xM';
+export const LOGO_URL = '/logo-mark.png';
 
 export const DOCTOR_PHOTO_URL = 'https://lh3.googleusercontent.com/aida-public/AB6AXuBCFliF4jmeaTJx36UAMgu4N0jIElDSuORlOlIakZZt2cYhv2Pb02p1TTpHIPsgYoTT-RPMn3ikS2E7yG8YkOxvBZuhi_q0y6QXfaTp3pgmw2jg7Fua2yHahK-fN1ZcPo-IQ3QG7trYfP06hY5th57aLxSITsn_W53y1yhtGepbGJX4cG9jKh4oJnV5ZroneZDOuEjh9JFYopao4ZiCz_Ax5XeWOl53Rs0mI_hEMZ8dWGo5k5P5VBVU';
 

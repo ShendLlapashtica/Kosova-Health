@@ -92,6 +92,10 @@
   letter-spacing: normal;
   text-transform: none;
   display: inline-block;
+  /* Cap to one glyph so the ligature name (e.g. "local_pharmacy") can't
+     widen the layout before the icon font has loaded. */
+  width: 1em;
+  overflow: hidden;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
@@ -110,4 +114,9 @@
   to {
     stroke-dashoffset: -20;
   }
+}
+
+/* Calmer OpenStreetMap tiles so the pharmacy dots stand out. */
+.kh-tiles {
+  filter: saturate(0.5) brightness(1.05) contrast(0.95);
 }
