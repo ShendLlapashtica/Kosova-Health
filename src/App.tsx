@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { LabSource } from './components/PickedForYou';
-import { TabType, Language, BiomarkerData, PatientProfile } from './types';
-import { INITIAL_PATIENT, INITIAL_BIOMARKERS } from './data/mockData';
+import { TabType, Language, BiomarkerData } from './types';
+import { INITIAL_BIOMARKERS } from './data/mockData';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LabBiomarkersInput } from './components/LabBiomarkersInput';
 import { PharmacyFinder } from './components/PharmacyFinder';
 import { SafeShopping } from './components/SafeShopping';
-import { AuthModal } from './components/AuthModal';
-import { ConsultationModal } from './components/ConsultationModal';
-import { PrescriptionDrawer } from './components/PrescriptionDrawer';
 
 const load = <T,>(k: string, fallback: T): T => {
   try {
@@ -29,18 +26,12 @@ const save = (k: string, v: unknown) => {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('shop');
-  const [language, setLanguage] = useState<Language>('al');
-  const [patient, setPatient] = useState<PatientProfile>(INITIAL_PATIENT);
+  const [language, setLanguage] = useState<Language>(() => load('kh.lang', 'al'));
+  useEffect(() => save('kh.lang', language), [language]);
   const [biomarkers, setBiomarkers] = useState<BiomarkerData>(() => load('kh.biomarkers', INITIAL_BIOMARKERS));
   const [labSource, setLabSource] = useState<LabSource | null>(() => load('kh.labSource', null));
   useEffect(() => save('kh.biomarkers', biomarkers), [biomarkers]);
   useEffect(() => save('kh.labSource', labSource), [labSource]);
-
-  // Modals state
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isConsultationOpen, setIsConsultationOpen] = useState(false);
-  const [isPrescriptionsOpen, setIsPrescriptionsOpen] = useState(false);
-  const [isDoctorView, setIsDoctorView] = useState(false);
 
   // Toast Notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -52,17 +43,6 @@ export default function App() {
     }, 4500);
   };
 
-  const handleLoginSuccess = (name: string, role: string) => {
-    if (role === 'clinic') {
-      setIsDoctorView(true);
-      showNotification(`Identifikuar si ${name} (Klinika Qendrore / Avicena Lab)!`);
-    } else {
-      setIsDoctorView(false);
-      setPatient((prev) => ({ ...prev, name }));
-      showNotification(`Mirësevini ${name}! Të dhënat tuaja u sinkronizuan.`);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background text-on-surface flex flex-col justify-between selection:bg-primary-container selection:text-on-primary-container">
       {/* Top Header */}
@@ -71,11 +51,6 @@ export default function App() {
         setActiveTab={setActiveTab}
         language={language}
         setLanguage={setLanguage}
-        patient={patient}
-        onOpenAuth={() => setIsAuthOpen(true)}
-        isDoctorView={isDoctorView}
-        setIsDoctorView={setIsDoctorView}
-        onOpenPrescriptions={() => setIsPrescriptionsOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -95,14 +70,12 @@ export default function App() {
           <LabBiomarkersInput
             biomarkers={biomarkers}
             setBiomarkers={setBiomarkers}
-            patient={patient}
             language={language}
             onGoToFoods={() => {
               setActiveTab('shop');
               setTimeout(() => document.getElementById('picked-for-you')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
             }}
             labSource={labSource}
-            onOpenConsultation={() => setIsConsultationOpen(true)}
             onNotification={showNotification}
             onReportLoaded={(r) => setLabSource({ fileName: r.fileName, date: r.sampleDate })}
           />
@@ -111,7 +84,6 @@ export default function App() {
         {activeTab === 'pharmacies' && (
           <PharmacyFinder
             language={language}
-            onOpenPrescriptions={() => setIsPrescriptionsOpen(true)}
             onNotification={showNotification}
           />
         )}
@@ -119,32 +91,6 @@ export default function App() {
 
       {/* Footer */}
       <Footer language={language} />
-
-      {/* Auth Modal (Screen 4) */}
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        language={language}
-        onLoginSuccess={handleLoginSuccess}
-      />
-
-      {/* Doctor Consultation Modal */}
-      <ConsultationModal
-        isOpen={isConsultationOpen}
-        onClose={() => setIsConsultationOpen(false)}
-        patient={patient}
-        biomarkers={biomarkers}
-        language={language}
-        onSuccess={showNotification}
-      />
-
-      {/* 20 Prescriptions Full Drawer Modal */}
-      <PrescriptionDrawer
-        isOpen={isPrescriptionsOpen}
-        onClose={() => setIsPrescriptionsOpen(false)}
-        language={language}
-        onReserveSuccess={showNotification}
-      />
 
       {/* Global Toast Notification */}
       {toastMessage && (

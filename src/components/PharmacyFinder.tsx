@@ -8,7 +8,6 @@ import data from '../data/prishtinaPharmacies.json';
 
 interface PharmacyFinderProps {
   language: Language;
-  onOpenPrescriptions: () => void;
   onNotification: (msg: string) => void;
 }
 
@@ -59,7 +58,7 @@ function MapMover({ target, bounds }: { target: { at: [number, number]; zoom: nu
   return null;
 }
 
-export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onOpenPrescriptions, onNotification }) => {
+export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onNotification }) => {
   const t = (al: string, en: string) => (language === 'al' ? al : en);
   const [zone, setZone] = useState<string>('all');
   const [onlyOpen, setOnlyOpen] = useState(false);
@@ -70,6 +69,7 @@ export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onOpen
   const [target, setTarget] = useState<{ at: [number, number]; zoom: number; n: number } | null>(null);
   const [bounds, setBounds] = useState<LatLngBoundsExpression | null>(null);
   const [now, setNow] = useState(() => new Date());
+  const [locState, setLocState] = useState<'asking' | 'ok' | 'denied' | 'unsupported'>('asking');
   const markers = useRef(new Map<string, LCircleMarker>());
 
   useEffect(() => {
@@ -78,16 +78,25 @@ export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onOpen
   }, []);
 
   const zoneInfo = ZONES.find((z) => z.id === zone);
-  const from: [number, number] = me ?? zoneInfo?.at ?? CENTER;
-  const fromLabel = me ? t('nga ti', 'from you') : zoneInfo ? t(`nga ${zoneInfo.name}`, `from ${zoneInfo.name}`) : t('nga qendra', 'from the centre');
+  // Distances are only shown when measured from the user's real position.
+  const from: [number, number] | null = me ?? zoneInfo?.at ?? null;
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return PHARMACIES.map((p) => ({ p, open: isOpenAt(p.openingHours, now), dist: km(from, [p.lat, p.lng]) }))
+    return PHARMACIES.map((p) => ({ p, open: isOpenAt(p.openingHours, now), dist: from ? km(from, [p.lat, p.lng]) : 0 }))
       .filter(({ p, open }) => (!onlyOpen || open === true) && (!only247 || p.openingHours === '24/7'))
       .filter(({ p }) => !q || `${p.name ?? ''} ${p.street ?? ''}`.toLowerCase().includes(q))
-      .sort((a, b) => a.dist - b.dist);
+      .sort((a, b) =>
+        from
+          ? a.dist - b.dist
+          : (b.open === true ? 1 : 0) - (a.open === true ? 1 : 0) || (a.p.name ?? '~').localeCompare(b.p.name ?? '~')
+      );
   }, [now, from, onlyOpen, only247, query]);
+  const caption = me
+    ? t(`${rows.length} farmaci · më të afërtat me ty`, `${rows.length} pharmacies · nearest to you`)
+    : zoneInfo
+      ? t(`${rows.length} farmaci · afër ${zoneInfo.name}`, `${rows.length} pharmacies · near ${zoneInfo.name}`)
+      : t(`${rows.length} farmaci · të hapurat së pari`, `${rows.length} pharmacies · open ones first`);
   const openCount = PHARMACIES.filter((p) => isOpenAt(p.openingHours, now) === true).length;
 
   const pick = (p: Pharmacy) => {
@@ -103,19 +112,33 @@ export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onOpen
     else setTarget({ at: ZONES.find((z) => z.id === id)!.at, zoom: 15, n: Date.now() });
   };
 
-  const locate = () => {
-    if (!navigator.geolocation) return onNotification(t('Shfletuesi nuk e jep vendndodhjen.', "Your browser can't share location."));
+  const locate = (quiet = false) => {
+    if (!navigator.geolocation) {
+      setLocState('unsupported');
+      return;
+    }
+    setLocState('asking');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const at: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setMe(at);
         setZone('all');
-        setTarget({ at, zoom: 16, n: Date.now() });
+        setLocState('ok');
+        setTarget({ at, zoom: 15, n: Date.now() });
       },
-      () => onNotification(t('Nuk e morëm vendndodhjen — lejoje në shfletues.', "Couldn't get your location — allow it in the browser.")),
-      { enableHighAccuracy: true, timeout: 10000 }
+      () => {
+        setLocState('denied');
+        if (!quiet) onNotification(t('Nuk e morëm vendndodhjen — lejoje te shfletuesi.', "Couldn't get your location — allow it in the browser."));
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60_000 }
     );
   };
+
+  // Ask for the location as soon as the page opens, so the nearest pharmacies come first.
+  useEffect(() => {
+    locate(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const statusPill = (open: boolean | undefined, p: Pharmacy) =>
     p.openingHours === '24/7' ? (
@@ -138,10 +161,6 @@ export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onOpen
             {t(`${PHARMACIES.length} farmaci të vërteta në hartë · ${openCount} të hapura tani`, `${PHARMACIES.length} real pharmacies on the map · ${openCount} open now`)}
           </p>
         </div>
-        <button type="button" onClick={onOpenPrescriptions} className="self-start lg:self-auto inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-low text-primary text-sm font-bold border border-surface-container hover:bg-surface-container-high">
-          <span className="material-symbols-outlined text-[18px]">prescriptions</span>
-          {t('Recetat e mia', 'My prescriptions')}
-        </button>
       </div>
 
       {/* Filters */}
@@ -164,7 +183,7 @@ export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onOpen
           <button type="button" onClick={() => setOnly247((v) => !v)} aria-pressed={only247} className={`px-3 py-2 rounded-lg text-xs font-bold ${only247 ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'}`}>
             🌙 24/7
           </button>
-          <button type="button" onClick={locate} className="px-3 py-2 rounded-lg text-xs font-bold bg-secondary-container text-on-secondary-container hover:opacity-90 inline-flex items-center gap-1">
+          <button type="button" onClick={() => locate()} className="px-3 py-2 rounded-lg text-xs font-bold bg-secondary-container text-on-secondary-container hover:opacity-90 inline-flex items-center gap-1">
             <span className="material-symbols-outlined text-[16px]">my_location</span>
             {t('Më e afërta me mua', 'Nearest to me')}
           </button>
@@ -233,9 +252,24 @@ export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onOpen
 
         {/* List */}
         <div className="lg:col-span-5 lg:order-1 flex flex-col gap-2">
-          <p className="text-xs text-on-surface-variant">
-            {t(`${rows.length} farmaci · më të afërtat ${fromLabel}`, `${rows.length} pharmacies · nearest ${fromLabel}`)}
-          </p>
+          {locState !== 'ok' && (
+            <div className="rounded-xl bg-secondary-container/40 border border-secondary/30 p-3 flex items-center gap-3">
+              <span className="text-2xl leading-none">📍</span>
+              <div className="flex-1 text-sm text-on-surface">
+                {locState === 'asking'
+                  ? t('Po kërkojmë vendndodhjen tënde për të treguar farmacitë më të afërta…', 'Finding your location to show the nearest pharmacies…')
+                  : locState === 'denied'
+                    ? t('Vendndodhja nuk u lejua. Lejoje te ikona e drynit në shfletues, ose zgjidh lagjen më lart.', 'Location was not allowed. Allow it via the lock icon in your browser, or pick a neighbourhood above.')
+                    : t('Ky shfletues nuk e jep vendndodhjen — zgjidh lagjen më lart.', "This browser can't share location — pick a neighbourhood above.")}
+              </div>
+              {locState === 'denied' && (
+                <button type="button" onClick={() => locate()} className="px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-bold shrink-0">
+                  {t('Provo prapë', 'Try again')}
+                </button>
+              )}
+            </div>
+          )}
+          <p className="text-xs text-on-surface-variant">{caption}</p>
           <div className="flex flex-col gap-2 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-1">
             {rows.slice(0, 60).map(({ p, open, dist }) => (
               <article
@@ -250,7 +284,7 @@ export const PharmacyFinder: React.FC<PharmacyFinderProps> = ({ language, onOpen
                   </div>
                   <div className="text-right shrink-0">
                     {statusPill(open, p)}
-                    <p className="text-[11px] font-mono font-bold text-primary mt-1">{dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`}</p>
+                    {me && <p className="text-[11px] font-mono font-bold text-primary mt-1">{dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`}</p>}
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-2 mt-1.5">

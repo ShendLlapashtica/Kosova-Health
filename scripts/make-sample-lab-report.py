@@ -20,9 +20,9 @@ FLAG = colors.HexColor("#ba1a1a")
 ROW = colors.HexColor("#f2f6f5")
 
 PATIENT = [
-    ("Pacienti:", "Shend Llapashtica", "ID e pacientit:", "#SL-04-2004"),
-    ("Mosha / Gjinia:", "20 vjeç / M", "Data e marrjes:", "03.10.2026 08:15"),
-    ("Mjeku referues:", "Dr. Arben Krasniqi", "Data e raportit:", "03.10.2026 13:40"),
+    ("Pacienti:", "Arta Shembulli", "ID e pacientit:", "#DEMO-0001"),
+    ("Mosha / Gjinia:", "34 vjeç / F", "Data e marrjes:", "03.10.2026 08:15"),
+    ("Mjeku referues:", "—", "Data e raportit:", "03.10.2026 13:40"),
 ]
 
 # (section, rows) — rows: analysis, result, unit, reference, flag

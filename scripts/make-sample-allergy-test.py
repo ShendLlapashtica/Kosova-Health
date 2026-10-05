@@ -55,8 +55,8 @@ head = Table([[Paragraph("<b>KosovaHealth</b> · Laboratori Demo", st("h", fontS
 head.setStyle(TableStyle([("LINEBELOW", (0, 1), (-1, 1), 1.2, TEAL), ("BOTTOMPADDING", (0, 1), (-1, 1), 6), ("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 0)]))
 lab, val = st("l", textColor=MUTED), st("v", fontName="Helvetica-Bold")
 pt = Table([[Paragraph(a, lab), Paragraph(b, val), Paragraph(c, lab), Paragraph(d, val)] for a, b, c, d in [
-    ("Pacienti:", "Shend Llapashtica", "ID e pacientit:", "#SL-04-2004"),
-    ("Mjeku referues:", "Dr. Arben Krasniqi", "Data e marrjes:", "03.10.2026 09:10")]], colWidths=[W*0.18, W*0.32, W*0.18, W*0.32])
+    ("Pacienti:", "Arta Shembulli", "ID e pacientit:", "#DEMO-0001"),
+    ("Mjeku referues:", "—", "Data e marrjes:", "03.10.2026 09:10")]], colWidths=[W*0.18, W*0.32, W*0.18, W*0.32])
 pt.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), ROW)]))
 sec = st("sec", fontName="Helvetica-Bold", fontSize=9, textColor=TEAL)
 doc.build([head, Spacer(1, 8), pt, Spacer(1, 10),
