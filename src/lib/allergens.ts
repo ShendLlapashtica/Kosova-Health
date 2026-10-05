@@ -186,12 +186,15 @@ export function parseAllergyLines(lines: string[]): AllergyFinding[] {
     }
     if (!id || found.has(id)) continue;
     const cls = /(?:klas[ae]?|class)\s*([0-6])/i.exec(line)?.[1];
-    const kU = /(\d+(?:[.,]\d+)?)\s*kU(?:A)?\s*\/\s*l/i.exec(line)?.[1];
+    const kUm = /([<>≤≥])?\s*(\d+(?:[.,]\d+)?)\s*kU(?:A)?\s*\/\s*l/i.exec(line);
+    const kU = kUm?.[2];
+    // "<0.35 kU/L" means *below* the limit — that's a negative result.
+    const belowLimit = kUm?.[1] === '<' || kUm?.[1] === '≤';
     const negative = /negativ|negative|\bjo\s*reaktiv/i.test(line);
     const positive = /pozitiv|positive|reaktiv|intoleranc/i.test(line) && !negative;
-    const isPos = cls !== undefined ? +cls >= 1 : kU !== undefined ? parseFloat(kU.replace(',', '.')) >= 0.35 : positive;
+    const isPos = cls !== undefined ? +cls >= 1 : kU !== undefined ? !belowLimit && parseFloat(kU.replace(',', '.')) >= 0.35 : positive;
     if (!isPos || (negative && cls === undefined)) continue;
-    found.set(id, { id, line, detail: cls !== undefined ? `klasa ${cls}` : kU ? `${kU} kU/L` : 'pozitiv' });
+    found.set(id, { id, line, detail: cls !== undefined ? `klasa ${cls}` : kU ? `${kUm?.[1] ?? ''}${kU} kU/L` : 'pozitiv' });
   }
   return [...found.values()];
 }
