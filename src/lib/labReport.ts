@@ -70,6 +70,14 @@ export function grade(key: BiomarkerKey, value: number): 'low' | 'high' | 'norma
 }
 
 const NUMBER = /(\d+(?:[.,]\d+)?)/;
+// Numbers that are never the result: reference ranges ("1.7 - 2.4", "30.0-100.0"),
+// limits ("< 5.7", "≥ 30") and digits that are part of a test's name ("25-OH", "25-Hydroxy").
+const NOT_A_RESULT = [
+  /\d+(?:[.,]\d+)?\s*[-–—]\s*\d+(?:[.,]\d+)?/g,
+  /[<>≤≥]\s*=?\s*\d+(?:[.,]\d+)?/g,
+  /\(?\b25\s*[-(]?\s*(?:OH|hydroxy)\b\)?/gi,
+];
+const blankOut = (s: string) => NOT_A_RESULT.reduce((acc, re) => acc.replace(re, (m) => ' '.repeat(m.length)), s);
 const round = (n: number, d: number) => Math.round(n * 10 ** d) / 10 ** d;
 
 /** Pull biomarker values out of a lab report's text lines. Pure — no PDF code. */
@@ -94,7 +102,8 @@ export function parseLabLines(lines: string[]): Pick<LabReportResult, 'values' |
       if (found.has(key)) continue;
       const label = re.exec(line);
       if (!label) continue;
-      const rest = line.slice(label.index + label[0].length);
+      // Same length as the text after the label, with ranges/limits/name digits blanked out.
+      const rest = blankOut(line.slice(label.index + label[0].length));
       const num = NUMBER.exec(rest);
       if (!num) continue;
 
