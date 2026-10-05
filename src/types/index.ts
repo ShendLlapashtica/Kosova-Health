@@ -1,4 +1,4 @@
-export type TabType = 'shop' | 'dashboard' | 'input' | 'diagrams' | 'pharmacies' | 'prescriptions' | 'auth';
+export type TabType = 'shop' | 'input' | 'pharmacies';
 
 export type Language = 'al' | 'en';
 
@@ -16,54 +16,3 @@ export interface BiomarkerData {
   pulse: number;      // Resting pulse bpm (60 - 100)
 }
 
-export interface PatientProfile {
-  id: string;
-  name: string;
-  age: number;
-  heightCm: number;
-  weightKg: number;
-  city: string;
-  verified: boolean;
-}
-
-export interface Pharmacy {
-  id: string | number;
-  name: string;
-  zone: string;
-  address: string;
-  distanceKm: number;
-  is24h: boolean;
-  stockCount: number;
-  totalItems: number;
-  phone: string;
-  badge?: string;
-  liveSync?: string;
-  note?: string;
-  lat?: number;
-  lng?: number;
-  mapX: number;
-  mapY: number;
-}
-
-export interface ProductItem {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
-  imageUrl: string;
-  inStock: boolean;
-  pharmacyName: string;
-  targetBadge: string;
-  targetDescription: string;
-  category: string;
-}
-
-export interface PrescriptionItem {
-  id: number;
-  name: string;
-  dosage: string;
-  indication: string;
-  quantity: string;
-  price: number;
-  inStock: boolean;
-}

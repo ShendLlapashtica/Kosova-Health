@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BiomarkerData, PatientProfile, Language } from '../types';
+import { BiomarkerData, Language } from '../types';
 import { BENCHMARK_NORMALS } from '../data/mockData';
 import { ResultsDiagram } from './ResultsDiagram';
 import {
@@ -17,11 +17,9 @@ const SAMPLE_REPORT_URL = '/sample-lab-report.pdf';
 interface LabBiomarkersInputProps {
   biomarkers: BiomarkerData;
   setBiomarkers: React.Dispatch<React.SetStateAction<BiomarkerData>>;
-  patient: PatientProfile;
   language: Language;
   onGoToFoods: () => void;
   labSource?: { fileName: string; date?: string } | null;
-  onOpenConsultation: () => void;
   onNotification: (msg: string) => void;
   onReportLoaded?: (r: LabReportResult) => void;
 }
@@ -29,11 +27,9 @@ interface LabBiomarkersInputProps {
 export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
   biomarkers,
   setBiomarkers,
-  patient,
   language,
   onGoToFoods,
   labSource,
-  onOpenConsultation,
   onNotification,
   onReportLoaded,
 }) => {
@@ -42,30 +38,6 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
   const [report, setReport] = useState<LabReportResult | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
-
-  // Calculate BMI and status
-  const bmi = patient.weightKg / Math.pow(patient.heightCm / 100, 2);
-  const bmiCategory = bmi >= 30 ? 'Obese' : bmi >= 25 ? 'Overweight' : 'Normal';
-
-  // Count deficiencies
-  const isMgLow = biomarkers.mg < 1.7;
-  const isVitdLow = biomarkers.vitd < 30;
-  const isCaLow = biomarkers.ca < 8.5;
-  const isBpElevated = biomarkers.bpSys > 120 || biomarkers.bpDia > 80;
-
-  const deficienciesCount = [isMgLow, isVitdLow, isCaLow].filter(Boolean).length;
-
-  // Metabolic coefficient calculation (0-100)
-  const calcScore = () => {
-    let score = 100;
-    if (isMgLow) score -= 15;
-    if (isVitdLow) score -= 14;
-    if (isCaLow) score -= 8;
-    if (isBpElevated) score -= 6;
-    if (biomarkers.glu > 99) score -= 8;
-    return Math.max(30, Math.min(100, score));
-  };
-  const metabolicScore = calcScore();
 
   // Read a lab report (PDF, or CSV from the CSV tab), push the values into the app state.
   const handleFile = async (file: File) => {
@@ -241,90 +213,6 @@ export const LabBiomarkersInput: React.FC<LabBiomarkersInputProps> = ({
               ? 'Lësho PDF-në nga laboratori — të tregojmë me fjalë të thjeshta çfarë do të thotë dhe çfarë të hash.'
               : 'Drop the PDF from your lab — we explain it in plain words and show what to eat.'}
           </p>
-        </div>
-      </div>
-
-      {/* Patient Profile & Biometrics Banner */}
-      <div className="rounded-xl bg-surface-container-lowest p-4 sm:p-5 shadow-sm border border-surface-container-high/60 flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[22px]">badge</span>
-            <h2 className="text-sm sm:text-base font-bold text-on-surface">
-              {patient.name}
-            </h2>
-            <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold uppercase">
-              {language === 'al' ? 'Pacient i Verifikuar' : 'Verified Patient'}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={onOpenConsultation}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-colors shadow-sm"
-          >
-            <span className="material-symbols-outlined text-[16px]">video_call</span>
-            <span>{language === 'al' ? 'Konsultohu me Dr. Krasniqin' : 'Consult Dr. Krasniqi'}</span>
-          </button>
-        </div>
-
-        {/* Biometrics Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
-          <div className="p-2.5 rounded-lg bg-surface-container-low">
-            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
-              {language === 'al' ? 'Mosha / Age' : 'Age'}
-            </span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-on-surface">
-              {patient.age} vjeç
-            </span>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-surface-container-low">
-            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
-              {language === 'al' ? 'Gjatësia / Height' : 'Height'}
-            </span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-on-surface">
-              {patient.heightCm} cm
-            </span>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-surface-container-low">
-            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
-              {language === 'al' ? 'Pesha / Weight' : 'Weight'}
-            </span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-on-surface">
-              {patient.weightKg} kg
-            </span>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-surface-container-low">
-            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
-              {language === 'al' ? 'BMI / Indeksi' : 'BMI'}
-            </span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-error">
-              {bmi.toFixed(1)} kg/m²
-            </span>
-            <span className="block text-[10px] text-error font-medium">{bmiCategory}</span>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-surface-container-low">
-            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
-              {language === 'al' ? 'Tensioni / BP' : 'Blood Pressure'}
-            </span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-outline">
-              {biomarkers.bpSys}/{biomarkers.bpDia} mmHg
-            </span>
-            <span className="block text-[10px] text-outline font-medium">{isBpElevated ? (language === 'al' ? 'Pak i lartë' : 'A bit high') : 'Normal'}</span>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-surface-container-low">
-            <span className="block text-[10px] font-bold text-on-surface-variant uppercase">
-              {language === 'al' ? 'Pulsi / Pulse' : 'Pulse'}
-            </span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-secondary">
-              {biomarkers.pulse} bpm
-            </span>
-            <span className="block text-[10px] text-secondary font-medium">Normal</span>
-          </div>
         </div>
       </div>
 
